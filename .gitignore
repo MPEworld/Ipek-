@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+dist/
+.env
+
+# Артефакты парсинга официального расписания.
+original-*.html
+original-day-tables.txt
+schedule-raw.json
+schedule-days-raw.json

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>ИПЭК — удобное расписание</title>
+    <link rel="icon" type="image/png" href="assets/ipek-logo.png">
+    <link rel="preload" href="assets/ipek-logo.png" as="image">
+    <link rel="preload" href="assets/college-photo-1.jpg" as="image">
+    <link rel="preload" href="assets/college-photo-2.jpg" as="image">
+    <link rel="stylesheet" href="styles.css?v=14">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <div class="header-left">
+          <button class="utility-button mode-toggle" type="button" id="mode-toggle" aria-pressed="false">
+            <span class="icon mode-icon-light" data-icon="sun" aria-hidden="true"></span>
+            <span class="icon mode-icon-dark" data-icon="moon" aria-hidden="true"></span>
+            <span class="sr-only">Светлая или тёмная тема</span>
+          </button>
+
+          <a class="brand" href="#home">
+            <span class="brand-mark">
+              <img src="assets/ipek-logo.png" alt="Логотип ИПЭК">
+            </span>
+            <span>
+              <strong>ИПЭК</strong>
+              <span>Ижевский промышленно-экономический колледж</span>
+            </span>
+          </a>
+        </div>
+
+        <div class="header-right">
+          <nav class="top-nav" aria-label="Основная навигация">
+            <a href="#home">Главная</a>
+            <a href="#schedule">Расписание</a>
+            <a href="#bells">Звонки</a>
+            <a href="#news">Новости</a>
+            <a href="#teachers">Преподаватели</a>
+            <a href="#contacts">Контакты</a>
+            <a href="https://max.ru/ipek_scheduler_bot" target="_blank" rel="noreferrer">Бот</a>
+          </nav>
+
+          <div class="stats-wrap">
+            <button class="utility-button stats-button" type="button" id="stats-toggle" aria-expanded="false" aria-controls="stats-panel">
+              <span class="icon" data-icon="bar-chart-3" aria-hidden="true"></span>
+              <span class="sr-only">Статистика</span>
+            </button>
+
+            <div class="stats-panel" id="stats-panel" hidden>
+              <div class="settings-panel-head">
+                <strong>Статистика пар</strong>
+                <button class="icon-button" type="button" id="stats-close">
+                  <span class="icon" data-icon="x" aria-hidden="true"></span>
+                  <span class="sr-only">Закрыть</span>
+                </button>
+              </div>
+              <div id="stats-content" class="stats-content"></div>
+            </div>
+          </div>
+
+          <div class="settings-wrap">
+            <button class="utility-button settings-button" type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">
+              <span class="icon" data-icon="settings" aria-hidden="true"></span>
+              <span class="sr-only">Настройки</span>
+            </button>
+
+            <div class="settings-panel" id="settings-panel" hidden>
+              <div class="settings-panel-head">
+                <strong>Настройки</strong>
+                <button class="icon-button" type="button" id="settings-close">
+                  <span class="icon" data-icon="x" aria-hidden="true"></span>
+                  <span class="sr-only">Закрыть</span>
+                </button>
+              </div>
+
+              <div class="settings-section">
+                <span class="settings-label">Дизайн интерфейса</span>
+                <div class="theme-grid" role="radiogroup" aria-label="Цвет интерфейса">
+                  <button class="theme-option" type="button" data-theme-choice="default" role="radio" aria-checked="true">
+                    <span class="theme-swatch swatch-default" aria-hidden="true"></span>
+                    <span>Серебро</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="campus" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-campus" aria-hidden="true"></span>
+                    <span>Классика</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="sky" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-sky" aria-hidden="true"></span>
+                    <span>Небо</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="mint" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-mint" aria-hidden="true"></span>
+                    <span>Мята</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="rose" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-rose" aria-hidden="true"></span>
+                    <span>Сакура</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="graphite" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-graphite" aria-hidden="true"></span>
+                    <span>Графит</span>
+                  </button>
+                  <button class="theme-option" type="button" data-theme-choice="liquid" role="radio" aria-checked="false">
+                    <span class="theme-swatch swatch-liquid" aria-hidden="true"></span>
+                    <span>Аврора</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-section profile-section">
+                <span class="settings-label">Добровольный профиль</span>
+                <div class="profile-preview" id="profile-preview"></div>
+                <label class="mini-field">
+                  <span>Имя</span>
+                  <input id="profile-name" type="text" autocomplete="name" maxlength="32" placeholder="Например, Алексей">
+                </label>
+                <label class="mini-field">
+                  <span>Группа</span>
+                  <select id="profile-group"></select>
+                </label>
+                <div class="profile-actions">
+                  <button class="mini-btn primary" type="button" id="profile-save">Сохранить</button>
+                  <button class="mini-btn" type="button" id="profile-clear">Выйти</button>
+                </div>
+              </div>
+
+              <div class="settings-row">
+                <span>
+                  <strong>RTX 4K</strong>
+                  <small>Неоновая сетка для светлого и тёмного режима</small>
+                </span>
+                <button class="switch-button" type="button" id="rtx-toggle" aria-pressed="false">
+                  <span aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="home-hero" id="home" aria-labelledby="home-title">
+          <img class="home-hero-image" src="assets/college-photo-1.jpg" alt="Здание колледжа">
+          <div class="home-hero-shade" aria-hidden="true"></div>
+          <img class="home-hero-secondary" src="assets/college-photo-2.jpg" alt="Вход в колледж">
+          <div class="home-hero-inner">
+            <p class="eyebrow">Ижевск · ул. Ленина, 68</p>
+            <h1 id="home-title">ИПЭК</h1>
+            <div class="hero-actions">
+              <a class="hero-action primary" href="#schedule">
+                <span class="icon" data-icon="layout-list" aria-hidden="true"></span>
+                <span>Открыть расписание</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="workspace" id="schedule" aria-labelledby="page-title">
+          <div class="workspace-head">
+            <div>
+              <p class="eyebrow">Расписание занятий</p>
+              <h1 id="page-title">Быстрый просмотр по группе, преподавателю или аудитории</h1>
+            </div>
+            <div class="student-pill" id="student-pill">
+              <span class="icon" data-icon="user" aria-hidden="true"></span>
+              <span>Гость · группа не выбрана</span>
+            </div>
+          </div>
+
+          <div class="control-panel" role="search">
+            <div class="date-strip" id="date-strip" aria-label="Выбор даты"></div>
+
+            <div class="control-grid">
+              <label class="field search-field">
+                <span>Поиск</span>
+                <span class="input-wrap">
+                  <span class="icon" data-icon="search" aria-hidden="true"></span>
+                  <input id="search-input" type="search" placeholder="Группа, предмет, кабинет, преподаватель">
+                </span>
+                <div class="suggestion-panel" id="search-suggestions" hidden></div>
+              </label>
+
+              <label class="field">
+                <span>Группа</span>
+                <select id="group-select"></select>
+              </label>
+
+              <div class="segmented" aria-label="Вид расписания">
+                <button class="segmented-btn is-active" type="button" data-view="cards" aria-pressed="true">
+                  <span class="icon" data-icon="layout-list" aria-hidden="true"></span>
+                  <span>Карточки</span>
+                </button>
+                <button class="segmented-btn" type="button" data-view="table" aria-pressed="false">
+                  <span class="icon" data-icon="table-2" aria-hidden="true"></span>
+                  <span>Таблица</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-row" aria-label="Фильтры">
+              <button class="filter-chip is-active" type="button" data-filter="filled">
+                <span class="icon" data-icon="check-circle-2" aria-hidden="true"></span>
+                <span>С занятиями</span>
+              </button>
+              <button class="filter-chip" type="button" data-filter="practice">
+                <span class="icon" data-icon="briefcase" aria-hidden="true"></span>
+                <span>Практика</span>
+              </button>
+              <button class="filter-chip" type="button" data-filter="exam">
+                <span class="icon" data-icon="badge-check" aria-hidden="true"></span>
+                <span>Экзамены</span>
+              </button>
+              <button class="filter-chip" type="button" data-filter="online">
+                <span class="icon" data-icon="monitor" aria-hidden="true"></span>
+                <span>Дистанционно</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-grid" id="summary-grid" aria-live="polite"></div>
+
+          <div class="content-grid">
+            <section class="schedule-panel" aria-label="Результаты расписания">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker" id="active-day-label"></p>
+                  <h2 id="active-title">Расписание</h2>
+                </div>
+                <button class="ghost-btn" type="button" id="save-group-btn">
+                  <span class="icon" data-icon="star" aria-hidden="true"></span>
+                  <span>Моя группа</span>
+                </button>
+              </div>
+
+              <div id="cards-view" class="lesson-list"></div>
+              <div id="table-view" class="table-shell" hidden></div>
+              <div id="empty-state" class="empty-state" hidden>
+                <span class="icon" data-icon="search-x" aria-hidden="true"></span>
+                <strong>Ничего не найдено</strong>
+                <span>Измените запрос, дату или фильтр.</span>
+              </div>
+            </section>
+
+            <aside class="side-stack" aria-label="Дополнительная информация">
+              <section class="tool-card now-card">
+                <div class="tool-card-head">
+                  <span class="icon" data-icon="clock-3" aria-hidden="true"></span>
+                  <h2>Сейчас</h2>
+                </div>
+                <div id="now-box" class="now-box"></div>
+              </section>
+
+              <section class="tool-card" id="bells">
+                <div class="tool-card-head">
+                  <span class="icon" data-icon="bell" aria-hidden="true"></span>
+                  <h2>Расписание звонков</h2>
+                </div>
+                <div class="bells-tabs" role="tablist" aria-label="Дни недели">
+                  <button class="bells-tab is-active" type="button" data-bells="weekday">Пн-Пт</button>
+                  <button class="bells-tab" type="button" data-bells="saturday">Суббота</button>
+                </div>
+                <div id="bells-list" class="bells-list"></div>
+              </section>
+
+              <section class="tool-card links-card">
+                <div class="tool-card-head">
+                  <span class="icon" data-icon="link" aria-hidden="true"></span>
+                  <h2>Сервисы</h2>
+                </div>
+                <a href="https://max.ru/ipek_scheduler_bot" target="_blank" rel="noreferrer">
+                  <span class="icon" data-icon="bot" aria-hidden="true"></span>
+                  <span>Официальный Max-бот расписания</span>
+                </a>
+                <a href="https://ek.udmr.ru/auth/login-page" target="_blank" rel="noreferrer">
+                  <span class="icon" data-icon="graduation-cap" aria-hidden="true"></span>
+                  <span>Электронный колледж</span>
+                </a>
+                <a href="https://moodle.pilot-ipek.ru" target="_blank" rel="noreferrer">
+                  <span class="icon" data-icon="book-open" aria-hidden="true"></span>
+                  <span>Moodle LMS</span>
+                </a>
+                <a href="https://www.pilot-ipek.ru/contacts.html" target="_blank" rel="noreferrer">
+                  <span class="icon" data-icon="map-pin" aria-hidden="true"></span>
+                  <span>Контакты ИПЭК</span>
+                </a>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="news-section" id="news" aria-labelledby="news-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Жизнь колледжа</p>
+              <h2 id="news-title">Новости и мероприятия</h2>
+            </div>
+            <a class="section-link" href="https://ciur.ru/ipek/Lists/News/AllItems.aspx" target="_blank" rel="noreferrer">
+              <span>Открыть все новости</span>
+              <span class="icon" data-icon="external-link" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="news-grid">
+            <article class="news-card news-card-featured">
+              <span class="news-icon"><span class="icon" data-icon="newspaper" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Официальная лента</span>
+                <h3>Объявления, итоги и фотоотчёты</h3>
+                <p>Главная лента ИПЭК на образовательном портале Удмуртской Республики: конкурсы, олимпиады, важные объявления и материалы для студентов.</p>
+              </div>
+              <a href="https://ciur.ru/ipek/Lists/News/AllItems.aspx" target="_blank" rel="noreferrer">Смотреть ленту</a>
+            </article>
+
+            <article class="news-card">
+              <span class="news-icon"><span class="icon" data-icon="calendar-days" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Конкурсы</span>
+                <h3>Digital World и ИТ-направления</h3>
+                <p>В новостях колледжа публикуются мероприятия по сетевому администрированию, программированию, ИИ, мобильным приложениям и другим ИТ-компетенциям.</p>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <span class="news-icon"><span class="icon" data-icon="star" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Инициативы</span>
+                <h3>Форумы и студенческие проекты</h3>
+                <p>Для студентов важны события про науку, культуру, волонтёрство и социальные проекты. Такой блок помогает быстро увидеть, что происходит вне расписания.</p>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <span class="news-icon"><span class="icon" data-icon="book-open" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Ресурсы</span>
+                <h3>Библиотека и электронные сервисы</h3>
+                <p>Сюда можно выводить объявления про ЭБС, Moodle, электронный колледж, карьерные встречи и полезные цифровые инструменты для обучения.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="teachers-section" id="teachers" aria-labelledby="teachers-title">
+          <div class="section-head teachers-head">
+            <div>
+              <p class="eyebrow">Педагогический состав</p>
+              <h2 id="teachers-title">Преподаватели</h2>
+            </div>
+            <a class="section-link" href="https://ciur.ru/ipek/SiteAssets/%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE.%20%D0%9F%D0%B5%D0%B4%D0%B0%D0%B3%D0%BE%D0%B3%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9%20%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2/%D1%81%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F%20%D0%BD%D0%B0%2009.11.%2020.pdf" target="_blank" rel="noreferrer">
+              <span>Официальный PDF</span>
+              <span class="icon" data-icon="external-link" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="teachers-toolbar">
+            <label class="field teacher-search-field">
+              <span>Поиск преподавателя</span>
+              <span class="input-wrap">
+                <span class="icon" data-icon="search" aria-hidden="true"></span>
+                <input id="teacher-search" type="search" placeholder="Фамилия, предмет, направление">
+              </span>
+            </label>
+            <p>Карточки собираются из текущего расписания и официальных сведений о педагогическом составе, когда преподаватель найден в документе.</p>
+          </div>
+
+          <div class="teachers-grid" id="teachers-grid"></div>
+        </section>
+      </main>
+
+      <footer class="site-footer" id="contacts">
+        <div class="footer-inner">
+          <div class="footer-main">
+            <a class="footer-brand" href="#home">
+              <span class="brand-mark">
+                <img src="assets/ipek-logo.png" alt="Логотип ИПЭК">
+              </span>
+              <span>
+                <strong>ИПЭК</strong>
+                <span>Расписание, новости и сервисы колледжа</span>
+              </span>
+            </a>
+            <p>Ижевский промышленно-экономический колледж. Быстрый сайт для студентов: расписание, звонки, новости, ссылки и контакты в одном месте.</p>
+            <div class="footer-badges" aria-label="Разделы сайта">
+              <a href="#schedule">Расписание</a>
+              <a href="#news">Новости</a>
+              <a href="#teachers">Преподаватели</a>
+            </div>
+          </div>
+
+          <div class="footer-grid">
+            <section class="footer-column">
+              <h2><span class="icon" data-icon="map-pin" aria-hidden="true"></span>Контакты</h2>
+              <a href="https://yandex.ru/maps/?text=Ижевск%2C%20Ленина%2C%2068" target="_blank" rel="noreferrer">
+                <span class="icon" data-icon="map-pin" aria-hidden="true"></span>
+                <span>Ижевск, ул. Ленина, 68</span>
+              </a>
+              <a href="tel:+73412685489">
+                <span class="icon" data-icon="phone" aria-hidden="true"></span>
+                <span>+7 (3412) 68-54-89</span>
+              </a>
+              <a href="mailto:ipek1@mail.ru">
+                <span class="icon" data-icon="mail" aria-hidden="true"></span>
+                <span>ipek1@mail.ru</span>
+              </a>
+            </section>
+
+            <section class="footer-column">
+              <h2><span class="icon" data-icon="graduation-cap" aria-hidden="true"></span>Студенту</h2>
+              <a href="#schedule">Расписание</a>
+              <a href="#teachers">Преподаватели</a>
+              <a href="#bells">Расписание звонков</a>
+              <a href="https://moodle.pilot-ipek.ru" target="_blank" rel="noreferrer">Moodle LMS</a>
+              <a href="https://ek.udmr.ru/auth/login-page" target="_blank" rel="noreferrer">Электронный колледж</a>
+            </section>
+
+            <section class="footer-column">
+              <h2><span class="icon" data-icon="link" aria-hidden="true"></span>Ссылки</h2>
+              <a href="https://ciur.ru/ipek/default.aspx" target="_blank" rel="noreferrer">Официальная страница</a>
+              <a href="https://ciur.ru/ipek/Lists/News/AllItems.aspx" target="_blank" rel="noreferrer">Новости ИПЭК</a>
+              <a href="https://max.ru/ipek_scheduler_bot" target="_blank" rel="noreferrer">Max-бот расписания</a>
+              <a href="https://www.pilot-ipek.ru/schedule.html" target="_blank" rel="noreferrer">Исходное расписание</a>
+            </section>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="data.js?v=14"></script>
+    <script src="app.js?v=14"></script>
+  </body>
+</html>
