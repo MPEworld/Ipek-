@@ -1057,6 +1057,352 @@ main {
   transform: translateY(-1px);
 }
 
+.applicant-section {
+  max-width: 1240px;
+  margin: 0 auto 28px;
+  scroll-margin-top: 124px;
+}
+
+.applicant-head {
+  margin-bottom: 12px;
+}
+
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.audience-card,
+.profession-card,
+.admission-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.audience-card::before,
+.profession-card::before,
+.admission-card::before {
+  position: absolute;
+  inset: 1px;
+  pointer-events: none;
+  content: "";
+  border-radius: calc(var(--radius) - 1px);
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.62), transparent 42%, rgba(255, 255, 255, 0.14));
+  opacity: 0.34;
+}
+
+[data-mode="dark"] .audience-card,
+[data-mode="dark"] .profession-card,
+[data-mode="dark"] .admission-card,
+body[data-theme="graphite"] .audience-card,
+body[data-theme="graphite"] .profession-card,
+body[data-theme="graphite"] .admission-card {
+  border-color: rgba(238, 238, 230, 0.14);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.075), transparent 44%),
+    rgba(16, 17, 20, 0.76);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 18px 46px rgba(0, 0, 0, 0.22);
+}
+
+[data-mode="dark"] .audience-card::before,
+[data-mode="dark"] .profession-card::before,
+[data-mode="dark"] .admission-card::before,
+body[data-theme="graphite"] .audience-card::before,
+body[data-theme="graphite"] .profession-card::before,
+body[data-theme="graphite"] .admission-card::before {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.13), transparent 44%, rgba(255, 255, 255, 0.035));
+  opacity: 0.2;
+}
+
+.audience-card > *,
+.profession-card > *,
+.admission-card > * {
+  position: relative;
+}
+
+.audience-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 150px;
+  padding: 16px;
+  transition: transform 240ms var(--ease-spring), border-color 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+}
+
+.audience-card:hover,
+.profession-card:hover,
+.admission-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(30, 79, 154, 0.22);
+  box-shadow: 0 24px 58px rgba(24, 32, 46, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+[data-mode="dark"] .audience-card:hover,
+[data-mode="dark"] .profession-card:hover,
+[data-mode="dark"] .admission-card:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 20px 48px rgba(0, 0, 0, 0.28);
+}
+
+.audience-icon,
+.profession-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 50%;
+  background: var(--button-bg);
+  color: var(--blue);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66);
+}
+
+.audience-card h3,
+.profession-card h3,
+.admission-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.12rem;
+  line-height: 1.16;
+}
+
+.audience-card p,
+.profession-card p,
+.profession-intro p,
+.admission-steps small {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.audience-card > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid rgba(8, 127, 122, 0.24);
+  border-radius: var(--radius);
+  background: var(--teal-2);
+  color: var(--teal);
+  font-weight: 850;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.profession-wrap {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.48fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.profession-intro {
+  position: sticky;
+  top: 132px;
+  align-self: start;
+  min-height: 100%;
+  padding: 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.28)),
+    linear-gradient(135deg, rgba(30, 79, 154, 0.08), rgba(8, 127, 122, 0.08));
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
+
+[data-mode="dark"] .profession-intro,
+body[data-theme="graphite"] .profession-intro {
+  border-color: rgba(238, 238, 230, 0.14);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.022)),
+    rgba(16, 17, 20, 0.78);
+}
+
+.profession-intro h2 {
+  margin: 0;
+  font-size: 2.25rem;
+  line-height: 1.03;
+}
+
+.profession-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profession-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 228px;
+  padding: 16px;
+  transition: transform 240ms var(--ease-spring), border-color 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+}
+
+.profession-card.accent-blue { --card-accent: #3f7fdb; }
+.profession-card.accent-violet { --card-accent: #8367d8; }
+.profession-card.accent-amber { --card-accent: #d08a16; }
+.profession-card.accent-green { --card-accent: #2b8a57; }
+.profession-card.accent-red { --card-accent: #cc4b61; }
+.profession-card.accent-teal { --card-accent: #087f7a; }
+
+.profession-card {
+  box-shadow:
+    inset 4px 0 0 color-mix(in srgb, var(--card-accent) 72%, transparent),
+    var(--glass-shadow);
+}
+
+.profession-card .profession-icon {
+  color: var(--card-accent);
+}
+
+.profession-codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.profession-codes span,
+.interest-cloud a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 780;
+  text-decoration: none;
+}
+
+[data-mode="dark"] .profession-codes span,
+[data-mode="dark"] .interest-cloud a,
+body[data-theme="graphite"] .profession-codes span,
+body[data-theme="graphite"] .interest-cloud a {
+  border-color: rgba(238, 238, 230, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eeeeea;
+}
+
+.admission-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.75fr);
+  gap: 12px;
+}
+
+.admission-card {
+  padding: 16px;
+}
+
+.admission-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admission-steps {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.admission-steps li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px 12px;
+  align-items: start;
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56);
+}
+
+[data-mode="dark"] .admission-steps li,
+body[data-theme="graphite"] .admission-steps li {
+  border-color: rgba(238, 238, 230, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.admission-steps li > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--active-gradient);
+  color: #fff;
+  font-weight: 900;
+}
+
+.admission-steps strong,
+.admission-steps small {
+  display: block;
+}
+
+.admission-steps small {
+  grid-column: 2 / -1;
+}
+
+.interest-card {
+  display: grid;
+  align-content: start;
+}
+
+.interest-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-cloud a:hover,
+.interest-cloud a:focus-visible {
+  border-color: rgba(8, 127, 122, 0.28);
+  background: var(--teal-2);
+  color: var(--teal);
+  outline: none;
+}
+
+.admission-contact {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(8, 127, 122, 0.22);
+  border-radius: var(--radius);
+  background: var(--teal-2);
+  color: var(--teal);
+}
+
+.admission-contact a {
+  color: inherit;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+[data-mode="dark"] .admission-contact,
+body[data-theme="graphite"] .admission-contact {
+  border-color: rgba(146, 214, 167, 0.22);
+  background: rgba(146, 214, 167, 0.1);
+  color: #d5f4de;
+}
+
 .workspace {
   max-width: 1240px;
   margin: 0 auto;
@@ -3202,6 +3548,29 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
     grid-template-columns: 1fr 1fr;
   }
 
+  .profession-wrap,
+  .admission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .audience-card {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .audience-card > a {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .profession-intro {
+    position: relative;
+    top: auto;
+  }
+
+  .profession-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .news-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3300,6 +3669,8 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
   .control-grid,
   .summary-grid,
   .content-grid,
+  .audience-grid,
+  .profession-grid,
   .news-grid,
   .teachers-grid,
   .teachers-toolbar,
@@ -3318,6 +3689,14 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
   }
 
   .news-card {
+    min-height: 0;
+  }
+
+  .profession-intro h2 {
+    font-size: 1.75rem;
+  }
+
+  .profession-card {
     min-height: 0;
   }
 

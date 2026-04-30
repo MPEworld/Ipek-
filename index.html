@@ -9,7 +9,7 @@
     <link rel="preload" href="assets/ipek-logo.png" as="image">
     <link rel="preload" href="assets/college-photo-1.jpg" as="image">
     <link rel="preload" href="assets/college-photo-2.jpg" as="image">
-    <link rel="stylesheet" href="styles.css?v=14">
+    <link rel="stylesheet" href="styles.css?v=15">
   </head>
   <body>
     <div class="app-shell">
@@ -36,6 +36,7 @@
           <nav class="top-nav" aria-label="Основная навигация">
             <a href="#home">Главная</a>
             <a href="#schedule">Расписание</a>
+            <a href="#applicants">Поступающим</a>
             <a href="#bells">Звонки</a>
             <a href="#news">Новости</a>
             <a href="#teachers">Преподаватели</a>
@@ -154,7 +155,162 @@
                 <span class="icon" data-icon="layout-list" aria-hidden="true"></span>
                 <span>Открыть расписание</span>
               </a>
+              <a class="hero-action" href="#applicants">
+                <span class="icon" data-icon="graduation-cap" aria-hidden="true"></span>
+                <span>Поступающим</span>
+              </a>
             </div>
+          </div>
+        </section>
+
+        <section class="applicant-section" id="applicants" aria-labelledby="applicants-title">
+          <div class="section-head applicant-head">
+            <div>
+              <p class="eyebrow">Поступающим</p>
+              <h2 id="applicants-title">Выбери направление без лишнего шума</h2>
+            </div>
+            <a class="section-link" href="#contacts">
+              <span>Связаться с колледжем</span>
+              <span class="icon" data-icon="phone" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="audience-grid">
+            <article class="audience-card is-student">
+              <span class="audience-icon"><span class="icon" data-icon="layout-list" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Студенту</span>
+                <h3>Расписание, звонки и преподаватели</h3>
+                <p>Быстро открыть свою группу, найти кабинет, пару, преподавателя или дистанционное занятие.</p>
+              </div>
+              <a href="#schedule">К расписанию</a>
+            </article>
+
+            <article class="audience-card is-applicant">
+              <span class="audience-icon"><span class="icon" data-icon="graduation-cap" aria-hidden="true"></span></span>
+              <div>
+                <span class="news-label">Абитуриенту</span>
+                <h3>Направления, документы и первый шаг</h3>
+                <p>Посмотреть, какие профессии есть в колледже, и понять, куда подходит твой интерес.</p>
+              </div>
+              <a href="#professions">Смотреть направления</a>
+            </article>
+          </div>
+
+          <div class="profession-wrap" id="professions">
+            <div class="profession-intro">
+              <p class="eyebrow">Профессии и специальности</p>
+              <h2>Кем можно стать после ИПЭК</h2>
+              <p>Направления сгруппированы простыми словами. Точные места, сроки и стоимость лучше сверять в приёмной комиссии перед подачей документов.</p>
+            </div>
+
+            <div class="profession-grid">
+              <article class="profession-card accent-blue">
+                <span class="profession-icon"><span class="icon" data-icon="monitor" aria-hidden="true"></span></span>
+                <h3>IT и программирование</h3>
+                <p>Информационные системы, программирование, сети, администрирование и операторы ИС.</p>
+                <div class="profession-codes">
+                  <span>09.02.07</span>
+                  <span>09.02.06</span>
+                  <span>09.01.03</span>
+                </div>
+              </article>
+
+              <article class="profession-card accent-violet">
+                <span class="profession-icon"><span class="icon" data-icon="shield" aria-hidden="true"></span></span>
+                <h3>Информационная безопасность</h3>
+                <p>Защита автоматизированных систем, работа с данными, базами и техническими средствами.</p>
+                <div class="profession-codes">
+                  <span>10.02.05</span>
+                </div>
+              </article>
+
+              <article class="profession-card accent-amber">
+                <span class="profession-icon"><span class="icon" data-icon="settings" aria-hidden="true"></span></span>
+                <h3>Техника и производство</h3>
+                <p>Машиностроение, сварка, электромонтёр, эксплуатация оборудования и производственная практика.</p>
+                <div class="profession-codes">
+                  <span>15.02.16</span>
+                  <span>15.01.05</span>
+                  <span>13.01.10</span>
+                </div>
+              </article>
+
+              <article class="profession-card accent-green">
+                <span class="profession-icon"><span class="icon" data-icon="briefcase" aria-hidden="true"></span></span>
+                <h3>Энергетика и тепло</h3>
+                <p>Электромеханическое оборудование, теплоснабжение и техническая эксплуатация систем.</p>
+                <div class="profession-codes">
+                  <span>13.02.11</span>
+                  <span>13.02.02</span>
+                </div>
+              </article>
+
+              <article class="profession-card accent-red">
+                <span class="profession-icon"><span class="icon" data-icon="badge-check" aria-hidden="true"></span></span>
+                <h3>Право и безопасность</h3>
+                <p>Правоохранительная деятельность, юриспруденция и социально-правовая работа.</p>
+                <div class="profession-codes">
+                  <span>40.02.02</span>
+                  <span>40.02.04</span>
+                  <span>40.02.01</span>
+                </div>
+              </article>
+
+              <article class="profession-card accent-teal">
+                <span class="profession-icon"><span class="icon" data-icon="book-open" aria-hidden="true"></span></span>
+                <h3>Экономика и дизайн</h3>
+                <p>Бухгалтерский учёт, коммерция, ландшафтное строительство и дизайн по отраслям.</p>
+                <div class="profession-codes">
+                  <span>38.02.01</span>
+                  <span>38.02.04</span>
+                  <span>54.02.01</span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="admission-grid">
+            <section class="admission-card">
+              <div class="admission-card-head">
+                <span class="audience-icon"><span class="icon" data-icon="calendar-days" aria-hidden="true"></span></span>
+                <div>
+                  <span class="news-label">Поступление</span>
+                  <h3>Путь за 4 шага</h3>
+                </div>
+              </div>
+              <ol class="admission-steps">
+                <li><span>1</span><strong>Выбрать направление</strong><small>Сравнить IT, право, технику, экономику и дизайн.</small></li>
+                <li><span>2</span><strong>Подготовить документы</strong><small>Паспорт, аттестат, фото и заявление по требованиям приёмной комиссии.</small></li>
+                <li><span>3</span><strong>Подать заявление</strong><small>Уточнить сроки и способ подачи на официальной странице колледжа.</small></li>
+                <li><span>4</span><strong>Следить за зачислением</strong><small>Проверять новости, списки и объявления приёмной комиссии.</small></li>
+              </ol>
+            </section>
+
+            <section class="admission-card interest-card">
+              <div class="admission-card-head">
+                <span class="audience-icon"><span class="icon" data-icon="sparkles" aria-hidden="true"></span></span>
+                <div>
+                  <span class="news-label">Быстрый выбор</span>
+                  <h3>Что тебе ближе?</h3>
+                </div>
+              </div>
+              <div class="interest-cloud" aria-label="Подбор направления по интересу">
+                <a href="#professions">Компьютеры</a>
+                <a href="#professions">Защита данных</a>
+                <a href="#professions">Право</a>
+                <a href="#professions">Электрика</a>
+                <a href="#professions">Сварка</a>
+                <a href="#professions">Бизнес</a>
+                <a href="#professions">Дизайн</a>
+                <a href="#professions">Техника</a>
+              </div>
+              <div class="admission-contact">
+                <strong>Приёмная комиссия</strong>
+                <a href="tel:+73412685489">+7 (3412) 68-54-89</a>
+                <a href="mailto:ipek1@mail.ru">ipek1@mail.ru</a>
+              </div>
+            </section>
           </div>
         </section>
 
@@ -385,6 +541,7 @@
             <p>Ижевский промышленно-экономический колледж. Быстрый сайт для студентов: расписание, звонки, новости, ссылки и контакты в одном месте.</p>
             <div class="footer-badges" aria-label="Разделы сайта">
               <a href="#schedule">Расписание</a>
+              <a href="#applicants">Поступающим</a>
               <a href="#news">Новости</a>
               <a href="#teachers">Преподаватели</a>
             </div>
@@ -428,7 +585,7 @@
       </footer>
     </div>
 
-    <script src="data.js?v=14"></script>
-    <script src="app.js?v=14"></script>
+    <script src="data.js?v=15"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>
