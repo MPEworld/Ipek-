@@ -2965,10 +2965,11 @@ body[data-theme="graphite"] .teacher-day-card {
 
 .teacher-day-row {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr) minmax(120px, 0.44fr);
+  grid-template-columns: minmax(108px, 0.22fr) minmax(0, 1fr) minmax(210px, auto);
   gap: 12px;
   align-items: center;
   padding: 12px;
+  overflow: hidden;
   transition: transform 220ms var(--ease-spring), border-color 220ms var(--ease-out), background 220ms var(--ease-out);
 }
 
@@ -2986,7 +2987,9 @@ body[data-theme="graphite"] .teacher-day-card {
 .teacher-day-row > div:last-child {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 7px;
+  min-width: 0;
 }
 
 .teacher-day-row strong {
@@ -2995,7 +2998,8 @@ body[data-theme="graphite"] .teacher-day-card {
 }
 
 .teacher-day-online {
-  width: fit-content;
+  width: max-content;
+  max-width: 100%;
   min-height: 26px;
   padding: 4px 8px;
   border: 1px solid rgba(8, 127, 122, 0.22);
@@ -3003,6 +3007,9 @@ body[data-theme="graphite"] .teacher-day-card {
   background: var(--teal-2);
   color: var(--teal) !important;
   font-weight: 850;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .teacher-day-empty {
@@ -3889,6 +3896,10 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .teacher-day-row {
+    grid-template-columns: minmax(118px, 0.24fr) minmax(0, 1fr) minmax(190px, auto);
+  }
+
   .audience-card {
     grid-template-columns: 44px minmax(0, 1fr);
   }
@@ -4047,6 +4058,7 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
 
   .teacher-day-row > div:last-child {
     align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .footer-map iframe {
