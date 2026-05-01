@@ -19,3 +19,18 @@ node tools/update-schedule.js
 ```bash
 python3 -m http.server 8000
 ```
+
+## Публикация на GitHub Pages
+
+1. Добавьте GitHub-репозиторий как `origin`, если его ещё нет.
+2. Отправьте ветку `main` на GitHub.
+3. В настройках репозитория откройте `Settings` → `Pages`.
+4. В `Build and deployment` выберите `Deploy from a branch`, ветку `main`, папку `/root`.
+
+После этого сайт будет доступен по адресу вида:
+
+```text
+https://<ваш-логин>.github.io/<имя-репозитория>/
+```
+
+Каркас Telegram/Max-бота лежит в `bots/schedule-bot`.

@@ -9,7 +9,7 @@
     <link rel="preload" href="assets/ipek-logo.png" as="image">
     <link rel="preload" href="assets/college-photo-1.jpg" as="image">
     <link rel="preload" href="assets/college-photo-2.jpg" as="image">
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=16">
   </head>
   <body>
     <div class="app-shell">
@@ -40,6 +40,7 @@
             <a href="#bells">Звонки</a>
             <a href="#news">Новости</a>
             <a href="#teachers">Преподаватели</a>
+            <a href="#teacher-day">Учителям</a>
             <a href="#contacts">Контакты</a>
             <a href="https://max.ru/ipek_scheduler_bot" target="_blank" rel="noreferrer">Бот</a>
           </nav>
@@ -159,6 +160,10 @@
                 <span class="icon" data-icon="graduation-cap" aria-hidden="true"></span>
                 <span>Поступающим</span>
               </a>
+              <a class="hero-action" href="https://izhevsk.postupi.online/ssuz/ipek/?fsuz=1200" target="_blank" rel="noreferrer">
+                <span class="icon" data-icon="external-link" aria-hidden="true"></span>
+                <span>Поступи Онлайн</span>
+              </a>
             </div>
           </div>
         </section>
@@ -201,7 +206,11 @@
             <div class="profession-intro">
               <p class="eyebrow">Профессии и специальности</p>
               <h2>Кем можно стать после ИПЭК</h2>
-              <p>Направления сгруппированы простыми словами. Точные места, сроки и стоимость лучше сверять в приёмной комиссии перед подачей документов.</p>
+              <p>По данным Postupi Online у колледжа 10 программ после 9 класса: 225 бюджетных и 75 платных мест на 2025 год. Ниже направления собраны без лишнего текста, чтобы проще сравнить первый выбор.</p>
+              <a class="profession-source" href="https://izhevsk.postupi.online/ssuz/ipek/?fsuz=1200" target="_blank" rel="noreferrer">
+                <span>Смотреть проходные баллы</span>
+                <span class="icon" data-icon="external-link" aria-hidden="true"></span>
+              </a>
             </div>
 
             <div class="profession-grid">
@@ -447,6 +456,32 @@
           </div>
         </section>
 
+        <section class="teacher-day-section" id="teacher-day" aria-labelledby="teacher-day-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Учителям</p>
+              <h2 id="teacher-day-title">Пары преподавателя на сегодня</h2>
+            </div>
+            <a class="section-link" href="#teachers">
+              <span>Все преподаватели</span>
+              <span class="icon" data-icon="user" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="teacher-day-card">
+            <div class="teacher-day-copy">
+              <span class="news-label">Быстрая ориентация</span>
+              <h3>Выберите себя и посмотрите группы, кабинеты и время</h3>
+              <p>Блок работает по загруженному расписанию: если на сегодняшнюю дату нет данных, сайт покажет ближайший доступный день.</p>
+            </div>
+            <label class="field teacher-day-picker">
+              <span>Преподаватель</span>
+              <select id="teacher-day-select"></select>
+            </label>
+            <div class="teacher-day-content" id="teacher-day-content" aria-live="polite"></div>
+          </div>
+        </section>
+
         <section class="news-section" id="news" aria-labelledby="news-title">
           <div class="section-head">
             <div>
@@ -567,6 +602,7 @@
             <section class="footer-column">
               <h2><span class="icon" data-icon="graduation-cap" aria-hidden="true"></span>Студенту</h2>
               <a href="#schedule">Расписание</a>
+              <a href="#teacher-day">Учителям</a>
               <a href="#teachers">Преподаватели</a>
               <a href="#bells">Расписание звонков</a>
               <a href="https://moodle.pilot-ipek.ru" target="_blank" rel="noreferrer">Moodle LMS</a>
@@ -577,15 +613,33 @@
               <h2><span class="icon" data-icon="link" aria-hidden="true"></span>Ссылки</h2>
               <a href="https://ciur.ru/ipek/default.aspx" target="_blank" rel="noreferrer">Официальная страница</a>
               <a href="https://ciur.ru/ipek/Lists/News/AllItems.aspx" target="_blank" rel="noreferrer">Новости ИПЭК</a>
+              <a href="https://izhevsk.postupi.online/ssuz/ipek/?fsuz=1200" target="_blank" rel="noreferrer">Поступающим</a>
               <a href="https://max.ru/ipek_scheduler_bot" target="_blank" rel="noreferrer">Max-бот расписания</a>
               <a href="https://www.pilot-ipek.ru/schedule.html" target="_blank" rel="noreferrer">Исходное расписание</a>
             </section>
           </div>
+
+          <section class="footer-map" aria-label="Карта проезда">
+            <div>
+              <span class="news-label">Местоположение</span>
+              <h2>Ижевск, ул. Ленина, 68</h2>
+              <p>Откройте карту прямо здесь или постройте маршрут в Яндекс Картах.</p>
+              <a href="https://yandex.ru/maps/?text=Ижевск%2C%20Ленина%2C%2068" target="_blank" rel="noreferrer">
+                <span class="icon" data-icon="map-pin" aria-hidden="true"></span>
+                <span>Открыть маршрут</span>
+              </a>
+            </div>
+            <iframe
+              title="Карта: ИПЭК, Ижевск, улица Ленина, 68"
+              src="https://yandex.ru/map-widget/v1/?text=%D0%98%D0%B6%D0%B5%D0%B2%D1%81%D0%BA%2C%20%D0%9B%D0%B5%D0%BD%D0%B8%D0%BD%D0%B0%2C%2068&z=16"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </section>
         </div>
       </footer>
     </div>
 
-    <script src="data.js?v=15"></script>
-    <script src="app.js?v=15"></script>
+    <script src="data.js?v=16"></script>
+    <script src="app.js?v=16"></script>
   </body>
 </html>

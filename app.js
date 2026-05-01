@@ -182,6 +182,23 @@ const OFFICIAL_TEACHER_PROFILES = {
     category: "первая категория",
     areas: ["информатика", "информационные технологии", "профессиональная деятельность"]
   },
+  Васильев: {
+    fullName: "Васильев Николай Яковлевич",
+    role: "преподаватель",
+    category: "первая категория",
+    areas: ["история", "обществознание"]
+  },
+  Веселкова: {
+    fullName: "Веселкова Ольга Александровна",
+    role: "преподаватель спецдисциплин",
+    category: "первая категория",
+    areas: ["тактико-специальная подготовка"]
+  },
+  Волкова: {
+    fullName: "Волкова Оксана Алексеевна",
+    role: "преподаватель",
+    areas: ["английский язык"]
+  },
   Самойленко: {
     fullName: "Самойленко Светлана Леонидовна",
     role: "преподаватель",
@@ -213,6 +230,7 @@ const savedGroup = readStorage("ipek-selected-group");
 const savedRtxFx = readStorage("ipek-rtx-fx") || readStorage("ipek-rtx-mode");
 const savedMode = readStorage("ipek-ui-mode");
 const savedTheme = readStorage("ipek-ui-theme") || "default";
+const savedTeacherKey = readStorage("ipek-teacher-key");
 const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 const initialMode = savedMode === "dark" || savedMode === "light" ? savedMode : (prefersDark ? "dark" : "light");
 const todayId = toISODate(new Date());
@@ -227,7 +245,8 @@ const state = {
   filters: new Set(["filled"]),
   bells: "weekday",
   profile: savedProfile,
-  mode: initialMode
+  mode: initialMode,
+  teacherKey: savedTeacherKey || ""
 };
 
 const els = {
@@ -252,7 +271,9 @@ const els = {
   profileSave: document.querySelector("#profile-save"),
   profileClear: document.querySelector("#profile-clear"),
   teacherSearch: document.querySelector("#teacher-search"),
-  teachersGrid: document.querySelector("#teachers-grid")
+  teachersGrid: document.querySelector("#teachers-grid"),
+  teacherDaySelect: document.querySelector("#teacher-day-select"),
+  teacherDayContent: document.querySelector("#teacher-day-content")
 };
 const rtxToggle = document.querySelector("#rtx-toggle");
 const modeToggle = document.querySelector("#mode-toggle");
@@ -285,6 +306,8 @@ function bootstrap() {
   renderGroupOptions();
   renderProfileControls();
   renderTeachers();
+  renderTeacherDayControls();
+  renderTeacherDaySchedule();
   renderBells();
   bindEvents();
   render();
@@ -309,6 +332,12 @@ function bindEvents() {
   els.profileName?.addEventListener("input", renderProfilePreview);
   els.profileGroup?.addEventListener("change", renderProfilePreview);
   els.teacherSearch?.addEventListener("input", renderTeachers);
+  els.teacherDaySelect?.addEventListener("change", (event) => {
+    state.teacherKey = event.target.value;
+    writeStorage("ipek-teacher-key", state.teacherKey);
+    renderTeacherDaySchedule();
+    if (statsPanel?.hidden === false) renderStats();
+  });
 
   document.addEventListener("click", (event) => {
     const button = event.target.closest("button");
@@ -560,6 +589,7 @@ function render() {
   renderSaveButton();
   renderStudentPill();
   renderNow(day);
+  renderTeacherDaySchedule();
   if (statsPanel?.hidden === false) renderStats();
   if (els.suggestions?.hidden === false) renderSearchSuggestions();
 
@@ -754,9 +784,17 @@ function closeSearchSuggestionsIfOutside(target) {
 function renderStats() {
   if (!els.stats) return;
   const stats = buildStats();
-  const title = state.group ? `Группа ${state.group}` : "Все группы";
+  const teacher = hasTeacherStatsScope()
+    ? getTeacherDirectory().find((profile) => profile.key === state.teacherKey)
+    : null;
+  const titleParts = [
+    state.group ? `Группа ${state.group}` : "Все группы",
+    teacher ? teacher.fullName || teacher.display : ""
+  ].filter(Boolean);
+  const title = titleParts.join(" · ");
   const topSubjects = stats.subjects.slice(0, 6).map((item) => statBar(item.name, item.count, stats.maxSubject)).join("");
   const dayLoad = stats.days.map((item) => statBar(item.label, item.count, stats.maxDay)).join("");
+  const forecast = buildWeeklyForecast();
 
   els.stats.innerHTML = `
     <div class="stats-scope">
@@ -770,6 +808,20 @@ function renderStats() {
     <div class="stats-block">
       <span class="settings-label">Нагрузка по дням</span>
       ${dayLoad || '<div class="suggestion-empty">Нет дат для анализа.</div>'}
+    </div>
+    <div class="stats-block">
+      <span class="settings-label">Пример недели по статистике</span>
+      ${forecast.length ? forecast.map(forecastRow).join("") : '<div class="suggestion-empty">Пока мало данных для прогноза.</div>'}
+    </div>
+  `;
+}
+
+function forecastRow(item) {
+  return `
+    <div class="forecast-row">
+      <strong>${escapeHTML(item.weekday)}</strong>
+      <span>${escapeHTML(item.subjects.join(", "))}</span>
+      <small>${escapeHTML(String(item.count))} занятий в выборке</small>
     </div>
   `;
 }
@@ -807,12 +859,90 @@ function renderTeachers() {
   renderIcons();
 }
 
+function renderTeacherDayControls() {
+  if (!els.teacherDaySelect) return;
+  const teachers = getTeacherDirectory().filter((profile) => profile.lessonCount || profile.official);
+  const hasSavedTeacher = teachers.some((profile) => profile.key === state.teacherKey);
+
+  if (!hasSavedTeacher) {
+    const firstWithSchedule = teachers.find((profile) => profile.lessonCount);
+    state.teacherKey = firstWithSchedule?.key || teachers[0]?.key || "";
+  }
+
+  els.teacherDaySelect.innerHTML = teachers.map((profile) => `
+    <option value="${escapeAttribute(profile.key)}">${escapeHTML(profile.fullName || profile.display)}</option>
+  `).join("");
+  els.teacherDaySelect.value = state.teacherKey;
+}
+
+function renderTeacherDaySchedule() {
+  if (!els.teacherDayContent) return;
+  if (els.teacherDaySelect && els.teacherDaySelect.value !== state.teacherKey) {
+    els.teacherDaySelect.value = state.teacherKey;
+  }
+
+  const profile = getTeacherDirectory().find((item) => item.key === state.teacherKey);
+  if (!profile) {
+    els.teacherDayContent.innerHTML = `
+      <div class="teacher-day-empty">
+        <strong>Выберите преподавателя</strong>
+        <span>После выбора здесь появятся пары, группы и кабинеты.</span>
+      </div>
+    `;
+    return;
+  }
+
+  const { day, label } = getTeacherScheduleDay(profile);
+  const entries = day.entries
+    .filter((entry) => !entry.isEmpty && entryHasTeacherKey(entry, profile.key))
+    .sort((a, b) => a.slot.order - b.slot.order || a.group.localeCompare(b.group, "ru"));
+
+  const rows = entries.map((entry) => {
+    const room = entry.flags.online
+      ? `<span class="teacher-day-online">Дистанционно</span>`
+      : entry.parsed.room
+        ? `<span>${escapeHTML(formatRoom(entry.parsed.room))}</span>`
+        : `<span>кабинет не указан</span>`;
+    return `
+      <article class="teacher-day-row">
+        <div>
+          <strong>${escapeHTML(entry.slot.pair)}</strong>
+          <span>${escapeHTML(entry.slot.timeLabel)}</span>
+        </div>
+        <div>
+          <strong>${escapeHTML(entry.parsed.subject || "Занятие")}</strong>
+          <span>${escapeHTML(entry.group)}</span>
+        </div>
+        <div>
+          <span class="icon" data-icon="${entry.flags.online ? "monitor" : "map-pin"}" aria-hidden="true"></span>
+          ${room}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  els.teacherDayContent.innerHTML = `
+    <div class="teacher-day-summary">
+      <strong>${escapeHTML(profile.fullName || profile.display)}</strong>
+      <span>${escapeHTML(label)} · ${escapeHTML(day.label)}</span>
+    </div>
+    ${rows || `
+      <div class="teacher-day-empty">
+        <strong>Пар не найдено</strong>
+        <span>В загруженных днях для этого преподавателя нет занятий.</span>
+      </div>
+    `}
+  `;
+  renderIcons();
+}
+
 function teacherCard(profile) {
   const officialAreas = profile.officialAreas.length ? profile.officialAreas : [];
-  const scheduleAreas = topScheduleSubjects(profile, 4);
-  const tags = uniqueTeacherAreas(officialAreas.concat(scheduleAreas), 5);
-  const groups = Array.from(profile.groups).slice(0, 4).join(", ");
-  const sourceLabel = profile.official ? "Официальные сведения + расписание" : "По текущему расписанию";
+  const scheduleAreas = topScheduleSubjects(profile, 3);
+  const allTags = uniqueTeacherAreas(officialAreas.concat(scheduleAreas), 5);
+  const tags = allTags.slice(0, 3);
+  const more = allTags.length - tags.length;
+  const sourceLabel = profile.official ? "Сведения + расписание" : "По расписанию";
 
   return `
     <article class="teacher-card" id="teacher-${escapeAttribute(teacherSlug(profile.key))}">
@@ -826,16 +956,17 @@ function teacherCard(profile) {
       </header>
       <div class="teacher-tags">
         ${tags.map((item) => `<span>${escapeHTML(item)}</span>`).join("")}
+        ${more > 0 ? `<span>+${escapeHTML(String(more))}</span>` : ""}
       </div>
-      <p class="teacher-note">${escapeHTML(teacherScheduleNote(profile, groups))}</p>
+      <p class="teacher-note">${escapeHTML(teacherScheduleNote(profile))}</p>
     </article>
   `;
 }
 
-function teacherScheduleNote(profile, groups) {
-  const lessons = profile.lessonCount ? `${profile.lessonCount} занятий в загруженном расписании` : "есть в расписании";
-  const groupText = groups ? `; группы: ${groups}` : "";
-  return `${lessons}${groupText}.`;
+function teacherScheduleNote(profile) {
+  if (!profile.lessonCount) return "Сведений в загруженном расписании пока нет.";
+  const groupCount = profile.groups.size;
+  return `${profile.lessonCount} ${pluralRu(profile.lessonCount, ["занятие", "занятия", "занятий"])} · ${groupCount} ${pluralRu(groupCount, ["группа", "группы", "групп"])}.`;
 }
 
 function getTeacherDirectory() {
@@ -907,6 +1038,22 @@ function getTeacherProfiles(teacher, subject = "") {
   return splitTeacherNames(teacher)
     .map((name) => byKey.get(teacherKey(name, subject)))
     .filter(Boolean);
+}
+
+function entryHasTeacherKey(entry, key) {
+  return splitTeacherNames(entry.parsed.teacher).some((name) => teacherKey(name, entry.parsed.subject) === key);
+}
+
+function getTeacherScheduleDay(profile) {
+  const candidates = days.filter((day) => day.entries.some((entry) => !entry.isEmpty && entryHasTeacherKey(entry, profile.key)));
+  const today = candidates.find((day) => day.id === todayId);
+  if (today) return { day: today, label: "Сегодня" };
+
+  const next = candidates.find((day) => day.id > todayId);
+  if (next) return { day: next, label: "Ближайший день" };
+
+  const fallback = candidates[candidates.length - 1] || getActiveDay();
+  return { day: fallback, label: "Последний день в данных" };
 }
 
 function splitTeacherNames(teacher) {
@@ -1362,10 +1509,7 @@ function getEntriesForCurrentGroup(day) {
 function buildStats() {
   const subjectCounts = new Map();
   const dayStats = days.map((day) => {
-    const entries = day.entries.filter((entry) => {
-      if (entry.isEmpty) return false;
-      return !state.group || entry.group === state.group;
-    });
+    const entries = day.entries.filter(entryInStatsScope);
 
     entries.forEach((entry) => {
       const subject = normalizeSubject(entry.parsed.subject);
@@ -1386,6 +1530,57 @@ function buildStats() {
     maxSubject: subjects[0]?.count || 0,
     maxDay: Math.max(0, ...dayStats.map((item) => item.count))
   };
+}
+
+function buildWeeklyForecast() {
+  const byWeekday = new Map();
+
+  days.forEach((day) => {
+    const date = parseDate(day.id);
+    if (!date) return;
+
+    const entries = day.entries.filter(entryInStatsScope);
+    if (!entries.length) return;
+
+    const weekdayIndex = (date.getDay() + 6) % 7;
+    const weekday = new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(date);
+    const bucket = byWeekday.get(weekdayIndex) || {
+      weekday: weekday.slice(0, 1).toUpperCase() + weekday.slice(1),
+      count: 0,
+      subjects: new Map()
+    };
+
+    entries.forEach((entry) => {
+      const subject = normalizeSubject(entry.parsed.subject);
+      if (!subject) return;
+      bucket.count += 1;
+      bucket.subjects.set(subject, (bucket.subjects.get(subject) || 0) + 1);
+    });
+
+    byWeekday.set(weekdayIndex, bucket);
+  });
+
+  return Array.from(byWeekday.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([, item]) => ({
+      weekday: item.weekday,
+      count: item.count,
+      subjects: Array.from(item.subjects, ([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ru"))
+        .slice(0, 2)
+        .map((subject) => subject.name)
+    }));
+}
+
+function entryInStatsScope(entry) {
+  if (entry.isEmpty) return false;
+  if (state.group && entry.group !== state.group) return false;
+  if (hasTeacherStatsScope() && !entryHasTeacherKey(entry, state.teacherKey)) return false;
+  return true;
+}
+
+function hasTeacherStatsScope() {
+  return Boolean(state.teacherKey && readStorage("ipek-teacher-key") === state.teacherKey);
 }
 
 function rankedValues(entries, pick) {
@@ -1631,6 +1826,15 @@ function normalizeSubject(value) {
     .replace(/\s+/g, " ")
     .replace(/^основы\s+/i, "Осн ")
     .trim();
+}
+
+function pluralRu(value, forms) {
+  const number = Math.abs(Number(value)) % 100;
+  const last = number % 10;
+  if (number > 10 && number < 20) return forms[2];
+  if (last > 1 && last < 5) return forms[1];
+  if (last === 1) return forms[0];
+  return forms[2];
 }
 
 function getActiveDay() {
