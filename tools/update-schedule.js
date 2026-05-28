@@ -38,7 +38,9 @@ async function main() {
   }
 
   const days = [];
-  for (const link of dayLinks) {
+  for (let i = 0; i < dayLinks.length; i++) {
+    const link = dayLinks[i];
+    if (i > 0) await new Promise((resolve) => setTimeout(resolve, 800));
     const html = await fetchText(link.url);
     assertNotBlocked(html, link.url);
     const tables = extractTables(html);
@@ -64,16 +66,26 @@ async function main() {
   console.log(`Готово: ${days.length} дней записано в ${target}`);
 }
 
-async function fetchText(url) {
-  const response = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0 IPEK schedule updater"
+async function fetchText(url, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const response = await fetch(url, {
+      headers: {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "ru-RU,ru;q=0.9,en;q=0.5"
+      }
+    });
+    if (!response.ok) {
+      if (attempt < retries) {
+        const delay = attempt * 2000;
+        console.log(`${url} ответил ${response.status}, повтор через ${delay}ms (попытка ${attempt}/${retries})`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      throw new Error(`${url} ответил статусом ${response.status}`);
     }
-  });
-  if (!response.ok) {
-    throw new Error(`${url} ответил статусом ${response.status}`);
+    return response.text();
   }
-  return response.text();
 }
 
 function assertNotBlocked(html, url) {

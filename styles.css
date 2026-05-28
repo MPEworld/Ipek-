@@ -368,6 +368,7 @@ a {
   border-bottom: 1px solid rgba(255, 255, 255, 0.62);
   background: var(--header-bg);
   box-shadow: 0 14px 42px rgba(24, 32, 46, 0.07), inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
   backdrop-filter: blur(18px) saturate(1.18);
   transition: background 420ms var(--ease-out), border-color 420ms var(--ease-out), box-shadow 420ms var(--ease-out);
 }
@@ -552,6 +553,7 @@ body[data-theme="graphite"] .top-nav a {
   color: var(--blue);
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66), 0 12px 26px rgba(24, 32, 46, 0.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.14);
   backdrop-filter: blur(12px) saturate(1.14);
   transition: transform 180ms var(--ease-spring), background 220ms var(--ease-out), border-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
 }
@@ -586,6 +588,7 @@ body[data-theme="graphite"] .top-nav a {
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 24px 70px rgba(24, 32, 46, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(1.16);
   backdrop-filter: blur(18px) saturate(1.16);
   transform-origin: top right;
   animation: settings-in 180ms var(--ease-out) both;
@@ -1578,6 +1581,7 @@ body[data-theme="graphite"] .student-pill::before {
   border-radius: var(--radius);
   background: var(--panel-bg);
   box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
   backdrop-filter: blur(18px) saturate(1.18);
   transition: transform 340ms var(--ease-spring), background 420ms var(--ease-out), border-color 420ms var(--ease-out), box-shadow 420ms var(--ease-out);
 }
@@ -3945,6 +3949,17 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
     padding: 16px 12px 32px;
   }
 
+  .site-header,
+  .control-panel,
+  .schedule-panel,
+  .tool-card,
+  .lesson-card,
+  .hero-action,
+  .student-pill {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   .site-header {
     padding: 12px;
   }
@@ -4136,5 +4151,82 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --glass: rgba(255, 255, 255, 0.85);
+    --glass-strong: rgba(255, 255, 255, 0.92);
+    --glass-border: rgba(0, 0, 0, 0.3);
+    --muted: #3a3f4a;
+    --line: #999;
+  }
+
+  body[data-mode="dark"] {
+    --glass: rgba(0, 0, 0, 0.85);
+    --glass-strong: rgba(0, 0, 0, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --muted: #c8cad0;
+    --line: #888;
+  }
+
+  .home-hero .eyebrow {
+    color: #fff;
+  }
+}
+
+@media print {
+  .site-header,
+  .home-hero,
+  .applicant-section,
+  .news-section,
+  .teacher-day-section,
+  .site-footer,
+  .control-panel,
+  .side-stack,
+  .stats-wrap,
+  .settings-wrap,
+  .student-pill,
+  .summary-grid,
+  .panel-head .ghost-btn {
+    display: none !important;
+  }
+
+  body,
+  body::before {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .app-shell::after {
+    display: none !important;
+  }
+
+  .schedule-panel,
+  .tool-card,
+  .control-panel,
+  .lesson-card {
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .lesson-card {
+    break-inside: avoid;
+  }
+
+  .workspace {
+    margin-top: 0 !important;
+  }
+
+  .workspace-head {
+    display: block !important;
+  }
+
+  a[href]::after {
+    content: none !important;
   }
 }

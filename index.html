@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f7f8fc">
+    <meta name="description" content="Расписание занятий, звонки, преподаватели и новости Ижевского промышленно-экономического колледжа (ИПЭК). Быстрый поиск по группе, кабинету и преподавателю.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ИПЭК — удобное расписание">
+    <meta property="og:description" content="Расписание, звонки, преподаватели и сервисы ИПЭК в одном месте.">
+    <meta property="og:image" content="assets/college-photo-1.jpg">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://yandex.ru; connect-src 'self';">
     <title>ИПЭК — удобное расписание</title>
     <link rel="icon" type="image/png" href="assets/ipek-logo.png">
     <link rel="preload" href="assets/ipek-logo.png" as="image">
@@ -404,8 +410,8 @@
               <div id="table-view" class="table-shell" hidden></div>
               <div id="empty-state" class="empty-state" hidden>
                 <span class="icon" data-icon="search-x" aria-hidden="true"></span>
-                <strong>Ничего не найдено</strong>
-                <span>Измените запрос, дату или фильтр.</span>
+                <strong id="empty-title">Ничего не найдено</strong>
+                <span id="empty-hint">Измените запрос, дату или фильтр.</span>
               </div>
             </section>
 

@@ -285,6 +285,7 @@ const statsPanel = document.querySelector("#stats-panel");
 const statsClose = document.querySelector("#stats-close");
 let renderFrame = 0;
 let teacherDirectoryCache = null;
+let searchDebounceTimer = 0;
 
 bootstrap();
 
@@ -302,6 +303,8 @@ function bootstrap() {
     state.group = chooseDefaultGroup(getActiveDay(), "");
   }
 
+  teacherDirectoryCache = null;
+
   renderDates();
   renderGroupOptions();
   renderProfileControls();
@@ -311,12 +314,21 @@ function bootstrap() {
   renderBells();
   bindEvents();
   render();
+
+  setInterval(() => {
+    const day = getActiveDay();
+    if (day.id === todayId) {
+      renderNow(day);
+      renderIcons();
+    }
+  }, 30000);
 }
 
 function bindEvents() {
   els.search.addEventListener("input", (event) => {
     state.query = event.target.value.trim();
-    renderSearchSuggestions();
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(renderSearchSuggestions, 150);
     scheduleRender();
   });
 
@@ -598,6 +610,20 @@ function render() {
   els.empty.hidden = hasResults;
   els.cards.hidden = state.view !== "cards" || !hasResults;
   els.table.hidden = state.view !== "table" || !hasResults;
+
+  if (!hasResults) {
+    const emptyTitle = document.getElementById("empty-title");
+    const emptyHint = document.getElementById("empty-hint");
+    if (emptyTitle && emptyHint) {
+      if (!state.group && !state.query) {
+        emptyTitle.textContent = "Выберите группу";
+        emptyHint.textContent = "Укажите группу в выпадающем списке или воспользуйтесь поиском.";
+      } else {
+        emptyTitle.textContent = "Ничего не найдено";
+        emptyHint.textContent = "Измените запрос, дату или фильтр.";
+      }
+    }
+  }
 
   if (state.view === "cards") {
     renderCards(visible);
@@ -1646,25 +1672,29 @@ function prepareRawDays(rawInput) {
     ...day,
     tables: Array.isArray(day.tables) ? [...day.tables] : []
   }));
-  const april30 = prepared.find((day) => day.id === "2026-04-30");
-  const may2 = prepared.find((day) => day.id === "2026-05-02");
 
-  if (april30 && may2 && april30.urlPart === may2.urlPart) {
-    const combinedTables = [...april30.tables, ...may2.tables];
-    const aprilTables = [];
-    const mayTables = [];
+  for (let i = 0; i < prepared.length; i++) {
+    for (let j = i + 1; j < prepared.length; j++) {
+      const a = prepared[i];
+      const b = prepared[j];
+      if (!a.urlPart || a.urlPart !== b.urlPart) continue;
 
-    combinedTables.forEach((table) => {
-      if (isSaturdayScheduleTable(table)) {
-        mayTables.push(table);
-      } else {
-        aprilTables.push(table);
+      const combinedTables = [...a.tables, ...b.tables];
+      const weekdayTables = [];
+      const saturdayTables = [];
+
+      combinedTables.forEach((table) => {
+        if (isSaturdayScheduleTable(table)) {
+          saturdayTables.push(table);
+        } else {
+          weekdayTables.push(table);
+        }
+      });
+
+      if (weekdayTables.length && saturdayTables.length) {
+        a.tables = weekdayTables;
+        b.tables = saturdayTables;
       }
-    });
-
-    if (aprilTables.length && mayTables.length) {
-      april30.tables = aprilTables;
-      may2.tables = mayTables;
     }
   }
 
@@ -1789,8 +1819,12 @@ function linesOf(value) {
 }
 
 function normalizeTime(value) {
-  const [hours, minutes] = value.replace(".", ":").split(":");
-  return `${hours.padStart(2, "0")}:${minutes}`;
+  const parts = value.replace(".", ":").split(":");
+  if (parts.length < 2) return "";
+  const hours = parts[0];
+  const minutes = parts[1];
+  if (!hours || !minutes) return "";
+  return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
 }
 
 function displayTime(value) {
@@ -1873,12 +1907,15 @@ function getPreferredGroup() {
 }
 
 function renderIcons() {
-  document.querySelectorAll("[data-icon]").forEach((node) => {
-    const name = node.getAttribute("data-icon");
-    const path = ICONS[name];
-    if (!path) return;
-    node.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>`;
-  });
+  try {
+    document.querySelectorAll("[data-icon]:not([data-icon-rendered])").forEach((node) => {
+      const name = node.getAttribute("data-icon");
+      const path = ICONS[name];
+      if (!path) return;
+      node.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>`;
+      node.setAttribute("data-icon-rendered", "");
+    });
+  } catch (_) {}
 }
 
 function renderDataError() {
@@ -1902,12 +1939,17 @@ function readStorage(key) {
 
 function readProfile() {
   try {
-    const parsed = JSON.parse(localStorage.getItem("ipek-student-profile") || "{}");
+    const raw = localStorage.getItem("ipek-student-profile");
+    if (!raw) return { name: "", group: "" };
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return { name: "", group: "" };
+    }
     return {
-      name: cleanText(parsed.name || "").slice(0, 32),
-      group: cleanText(parsed.group || "")
+      name: typeof parsed.name === "string" ? cleanText(parsed.name).slice(0, 32) : "",
+      group: typeof parsed.group === "string" ? cleanText(parsed.group) : ""
     };
-  } catch (error) {
+  } catch (_) {
     return { name: "", group: "" };
   }
 }
