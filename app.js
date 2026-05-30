@@ -233,7 +233,7 @@ const savedTheme = readStorage("ipek-ui-theme") || "default";
 const savedTeacherKey = readStorage("ipek-teacher-key");
 const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 const initialMode = savedMode === "dark" || savedMode === "light" ? savedMode : (prefersDark ? "dark" : "light");
-const todayId = toISODate(new Date());
+let todayId = toISODate(new Date());
 const defaultDay = days.find((day) => day.id === todayId) || days[0];
 const defaultGroup = chooseDefaultGroup(defaultDay, savedProfile.group || savedGroup);
 
@@ -286,6 +286,10 @@ const statsClose = document.querySelector("#stats-close");
 let renderFrame = 0;
 let teacherDirectoryCache = null;
 let searchDebounceTimer = 0;
+let sheetEntries = [];
+let sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
+const savedSheetUrl = readStorage("ipek-sheet-url") || "";
+state.sheetUrl = savedSheetUrl;
 
 bootstrap();
 
@@ -316,12 +320,22 @@ function bootstrap() {
   render();
 
   setInterval(() => {
+    const freshToday = toISODate(new Date());
+    if (freshToday !== todayId) {
+      todayId = freshToday;
+      teacherDirectoryCache = null;
+      render();
+      return;
+    }
     const day = getActiveDay();
     if (day.id === todayId) {
       renderNow(day);
       renderIcons();
     }
   }, 30000);
+
+  loadSheetOverlay();
+  setInterval(loadSheetOverlay, 5 * 60 * 1000);
 }
 
 function bindEvents() {
@@ -475,6 +489,35 @@ function bindEvents() {
     writeStorage("ipek-selected-group", state.group);
     renderSaveButton();
     renderStudentPill();
+  });
+
+  const sheetSave = document.querySelector("#sheet-save");
+  const sheetClear = document.querySelector("#sheet-clear");
+  const sheetInput = document.querySelector("#sheet-url-input");
+  const sheetTemplate = document.querySelector("#sheet-template-link");
+
+  if (sheetInput) sheetInput.value = state.sheetUrl;
+  if (sheetTemplate) {
+    sheetTemplate.href = "https://github.com/MPEworld/Ipek-/blob/main/GOOGLE_SHEETS.md";
+    sheetTemplate.textContent = "Инструкция по созданию таблицы";
+  }
+  renderSheetStatus();
+
+  sheetSave?.addEventListener("click", () => {
+    const url = (sheetInput?.value || "").trim();
+    state.sheetUrl = url;
+    writeStorage("ipek-sheet-url", url);
+    loadSheetOverlay(true);
+  });
+
+  sheetClear?.addEventListener("click", () => {
+    state.sheetUrl = "";
+    if (sheetInput) sheetInput.value = "";
+    removeStorage("ipek-sheet-url");
+    sheetEntries = [];
+    sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
+    renderSheetStatus();
+    transitionRender();
   });
 }
 
@@ -1981,4 +2024,291 @@ function escapeHTML(value) {
 
 function escapeAttribute(value) {
   return escapeHTML(value).replace(/`/g, "&#96;");
+}
+
+async function loadSheetOverlay(force = false) {
+  if (!state.sheetUrl) {
+    if (sheetEntries.length) {
+      sheetEntries = [];
+      sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
+      applySheetOverlay();
+      transitionRender();
+    }
+    renderSheetStatus();
+    return;
+  }
+
+  const cacheValid = !force && sheetMeta.url === state.sheetUrl && Date.now() - sheetMeta.fetchedAt < 60000;
+  if (cacheValid) return;
+
+  try {
+    const csvUrl = normalizeSheetUrl(state.sheetUrl);
+    const response = await fetch(csvUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error(`статус ${response.status}`);
+    const text = await response.text();
+    const parsed = parseSheetCsv(text);
+    sheetEntries = parsed;
+    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: parsed.length, error: "" };
+    applySheetOverlay();
+    transitionRender();
+    renderSheetStatus();
+  } catch (error) {
+    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: 0, error: error.message || "ошибка загрузки" };
+    renderSheetStatus();
+  }
+}
+
+function normalizeSheetUrl(url) {
+  if (!url) return "";
+  if (url.includes("output=csv") || url.includes("/export?format=csv")) return url;
+  const editMatch = url.match(/\/spreadsheets\/d\/([^/]+)/);
+  if (editMatch) {
+    const gid = url.match(/[#&?]gid=(\d+)/);
+    const id = editMatch[1];
+    return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv${gid ? `&gid=${gid[1]}` : ""}`;
+  }
+  return url;
+}
+
+function parseSheetCsv(text) {
+  const rows = parseCsv(text);
+  if (!rows.length) return [];
+  const header = rows[0].map((cell) => normalizeSearch(cell));
+  const indexOf = (variants) => header.findIndex((cell) => variants.some((variant) => cell.includes(variant)));
+
+  const colMap = {
+    date: indexOf(["дата", "число", "date"]),
+    group: indexOf(["группа", "group"]),
+    pair: indexOf(["пара", "lesson", "номер"]),
+    start: indexOf(["начало", "start"]),
+    end: indexOf(["конец", "оконч", "end"]),
+    subject: indexOf(["предмет", "subject", "занят"]),
+    teacher: indexOf(["препод", "учител", "teacher"]),
+    room: indexOf(["кабинет", "аудит", "room"]),
+    note: indexOf(["заметк", "коммент", "note"])
+  };
+
+  if (colMap.date < 0 || colMap.group < 0 || colMap.pair < 0 || colMap.subject < 0) {
+    throw new Error("в таблице нужны колонки: Дата, Группа, Пара, Предмет");
+  }
+
+  const entries = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const dateRaw = (row[colMap.date] || "").trim();
+    if (!dateRaw) continue;
+    const date = normalizeSheetDate(dateRaw);
+    if (!date) continue;
+    const group = (row[colMap.group] || "").trim();
+    const pairRaw = (row[colMap.pair] || "").trim();
+    if (!group || !pairRaw) continue;
+    const pairNumber = parseInt(pairRaw, 10);
+    if (!Number.isFinite(pairNumber)) continue;
+
+    const subject = (row[colMap.subject] || "").trim();
+    if (!subject) continue;
+
+    entries.push({
+      date,
+      group,
+      pair: pairNumber,
+      start: colMap.start >= 0 ? (row[colMap.start] || "").trim() : "",
+      end: colMap.end >= 0 ? (row[colMap.end] || "").trim() : "",
+      subject,
+      teacher: colMap.teacher >= 0 ? (row[colMap.teacher] || "").trim() : "",
+      room: colMap.room >= 0 ? (row[colMap.room] || "").trim() : "",
+      note: colMap.note >= 0 ? (row[colMap.note] || "").trim() : ""
+    });
+  }
+
+  return entries;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  const src = String(text || "").replace(/\r\n?/g, "\n");
+
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') { cell += '"'; i++; }
+        else inQuotes = false;
+      } else {
+        cell += ch;
+      }
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+      else cell += ch;
+    }
+  }
+  if (cell.length || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter((r) => r.some((c) => String(c).trim()));
+}
+
+function normalizeSheetDate(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const dmy = trimmed.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/);
+  if (dmy) {
+    const day = dmy[1].padStart(2, "0");
+    const month = dmy[2].padStart(2, "0");
+    let year = dmy[3];
+    if (year.length === 2) year = `20${year}`;
+    return `${year}-${month}-${day}`;
+  }
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) return toISODate(parsed);
+  return "";
+}
+
+function applySheetOverlay() {
+  const overlayByDate = new Map();
+  sheetEntries.forEach((entry) => {
+    if (!overlayByDate.has(entry.date)) overlayByDate.set(entry.date, []);
+    overlayByDate.get(entry.date).push(entry);
+  });
+
+  const existingIds = new Set(days.map((d) => d.id));
+  overlayByDate.forEach((entries, date) => {
+    if (!existingIds.has(date)) {
+      const synthetic = buildSyntheticDay(date, entries);
+      days.push(synthetic);
+    } else {
+      const day = days.find((d) => d.id === date);
+      mergeSheetIntoDay(day, entries);
+    }
+  });
+
+  days.sort(compareDays);
+  teacherDirectoryCache = null;
+}
+
+function buildSyntheticDay(date, entries) {
+  const groups = Array.from(new Set(entries.map((e) => e.group))).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+  const pairs = Array.from(new Set(entries.map((e) => e.pair))).sort((a, b) => a - b);
+  const tables = [];
+
+  const header = ["", ...groups];
+  const body = pairs.map((pair) => {
+    const sample = entries.find((e) => e.pair === pair);
+    const start = sample?.start || "";
+    const end = sample?.end || "";
+    const slotText = start && end ? `${pair} пара\n\n${start}\n\n–\n\n${end}` : `${pair} пара`;
+    return [slotText, ...groups.map((group) => {
+      const lesson = entries.find((e) => e.pair === pair && e.group === group);
+      return lesson ? formatSheetLesson(lesson) : "";
+    })];
+  });
+
+  tables.push([header, ...body]);
+
+  const parsed = parseDate(date);
+  const weekday = parsed ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", weekday: "long" }).format(parsed) : date;
+
+  const synthetic = {
+    id: date,
+    label: parsed ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(parsed) : date,
+    titleText: `Расписание из Google Таблицы: ${weekday}`,
+    url: state.sheetUrl,
+    rawTables: tables,
+    entries: [],
+    groups,
+    fromSheet: true
+  };
+
+  rebuildDayEntries(synthetic);
+  return synthetic;
+}
+
+function mergeSheetIntoDay(day, entries) {
+  const updatedTables = day.rawTables.map((table) => table.map((row) => row.slice()));
+  const groupSet = new Set(day.groups);
+
+  entries.forEach((entry) => groupSet.add(entry.group));
+  const allGroups = Array.from(groupSet).sort((a, b) => a.localeCompare(b, "ru", { numeric: true }));
+
+  let target = updatedTables.find((table) => Array.isArray(table[0]) && table[0].length > 1);
+  if (!target) {
+    target = [["", ...allGroups]];
+    updatedTables.push(target);
+  }
+
+  const header = target[0];
+  entries.forEach((entry) => {
+    let colIdx = header.indexOf(entry.group);
+    if (colIdx < 0) {
+      header.push(entry.group);
+      colIdx = header.length - 1;
+      for (let r = 1; r < target.length; r++) target[r].push("");
+    }
+
+    let rowIdx = target.findIndex((row, idx) => idx > 0 && new RegExp(`^${entry.pair}\\s*пара`, "i").test(String(row[0] || "")));
+    if (rowIdx < 0) {
+      const slotText = entry.start && entry.end ? `${entry.pair} пара\n\n${entry.start}\n\n–\n\n${entry.end}` : `${entry.pair} пара`;
+      const newRow = [slotText, ...header.slice(1).map(() => "")];
+      target.push(newRow);
+      rowIdx = target.length - 1;
+    }
+    target[rowIdx][colIdx] = formatSheetLesson(entry);
+  });
+
+  day.rawTables = updatedTables;
+  day.groups = allGroups;
+  day.fromSheet = true;
+  rebuildDayEntries(day);
+}
+
+function rebuildDayEntries(day) {
+  const entries = [];
+  day.rawTables.forEach((table) => {
+    if (!Array.isArray(table) || !Array.isArray(table[0])) return;
+    const groups = table[0].slice(1).map(cleanText);
+    table.slice(1).forEach((row) => {
+      const slot = parseSlot(row[0] || "");
+      groups.forEach((group, index) => {
+        if (!group) return;
+        const text = cleanText(row[index + 1] || "");
+        entries.push(makeEntry(day, group, slot, text, parseLesson(text)));
+      });
+    });
+  });
+  day.entries = entries;
+}
+
+function formatSheetLesson(entry) {
+  const lines = [entry.subject];
+  if (entry.teacher) lines.push(entry.teacher);
+  if (entry.room) lines.push(entry.room);
+  if (entry.note) lines.push(entry.note);
+  return lines.join("\n\n");
+}
+
+function renderSheetStatus() {
+  const status = document.querySelector("#sheet-status");
+  if (!status) return;
+  if (!state.sheetUrl) {
+    status.textContent = "Источник: pilot-ipek.ru";
+    status.dataset.kind = "neutral";
+    return;
+  }
+  if (sheetMeta.error) {
+    status.textContent = `Ошибка: ${sheetMeta.error}`;
+    status.dataset.kind = "error";
+    return;
+  }
+  if (!sheetMeta.fetchedAt) {
+    status.textContent = "Загружаю таблицу…";
+    status.dataset.kind = "loading";
+    return;
+  }
+  const minutes = Math.max(0, Math.round((Date.now() - sheetMeta.fetchedAt) / 60000));
+  status.textContent = `Загружено ${sheetMeta.count} строк · обновлено ${minutes === 0 ? "только что" : `${minutes} мин назад`}`;
+  status.dataset.kind = "ok";
 }

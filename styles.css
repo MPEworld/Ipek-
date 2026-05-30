@@ -4143,6 +4143,65 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
   }
 }
 
+.sheet-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(116, 132, 154, 0.18);
+}
+
+.sheet-hint {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.sheet-status {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.54);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.sheet-status[data-kind="ok"] {
+  border-color: rgba(43, 138, 87, 0.32);
+  color: var(--green);
+}
+
+.sheet-status[data-kind="error"] {
+  border-color: rgba(204, 38, 59, 0.36);
+  color: var(--red);
+}
+
+.sheet-status[data-kind="loading"] {
+  border-color: rgba(30, 79, 154, 0.32);
+  color: var(--blue);
+}
+
+.sheet-template {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--blue);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.sheet-template:hover,
+.sheet-template:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+[data-mode="dark"] .sheet-status,
+body[data-theme="graphite"] .sheet-status {
+  border-color: rgba(238, 238, 230, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -9,7 +9,7 @@
     <meta property="og:title" content="ИПЭК — удобное расписание">
     <meta property="og:description" content="Расписание, звонки, преподаватели и сервисы ИПЭК в одном месте.">
     <meta property="og:image" content="assets/college-photo-1.jpg">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://yandex.ru; connect-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://yandex.ru; connect-src 'self' https://docs.google.com https://*.googleusercontent.com;">
     <title>ИПЭК — удобное расписание</title>
     <link rel="icon" type="image/png" href="assets/ipek-logo.png">
     <link rel="preload" href="assets/ipek-logo.png" as="image">
@@ -143,6 +143,21 @@
                 <button class="switch-button" type="button" id="rtx-toggle" aria-pressed="false">
                   <span aria-hidden="true"></span>
                 </button>
+              </div>
+
+              <div class="settings-section sheet-section">
+                <span class="settings-label">Google Таблица с расписанием</span>
+                <p class="sheet-hint">Опубликуйте таблицу через «Файл → Опубликовать в интернете → CSV» и вставьте ссылку. Данные из таблицы перекроют расписание для тех дней, где они заполнены.</p>
+                <label class="mini-field">
+                  <span>Ссылка на CSV</span>
+                  <input id="sheet-url-input" type="url" autocomplete="off" placeholder="https://docs.google.com/.../pub?output=csv">
+                </label>
+                <div class="profile-actions">
+                  <button class="mini-btn primary" type="button" id="sheet-save">Применить</button>
+                  <button class="mini-btn" type="button" id="sheet-clear">Сбросить</button>
+                </div>
+                <div class="sheet-status" id="sheet-status" aria-live="polite"></div>
+                <a class="sheet-template" id="sheet-template-link" href="#" target="_blank" rel="noreferrer">Шаблон таблицы (откроется в новой вкладке)</a>
               </div>
             </div>
           </div>
