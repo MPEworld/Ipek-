@@ -1,0 +1,37 @@
+name: Update schedule
+
+on:
+  schedule:
+    - cron: "15 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch schedule from pilot-ipek.ru
+        id: fetch
+        continue-on-error: true
+        run: node tools/update-schedule.js --out data.js
+
+      - name: Commit if changed
+        if: steps.fetch.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.js
+          if git diff --cached --quiet; then
+            echo "data.js не изменился, коммит не нужен"
+          else
+            git commit -m "chore: update schedule data $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
