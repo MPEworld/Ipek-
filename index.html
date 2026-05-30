@@ -147,33 +147,48 @@
 
               <div class="settings-section sheet-section">
                 <span class="settings-label">Google Таблица с расписанием</span>
-                <p class="sheet-hint">Учителя могут вести расписание в одной общей Google Таблице — изменения автоматически появляются на сайте.</p>
-
-                <a class="sheet-download" href="schedule-template.xlsx" download>
-                  <span class="icon" data-icon="book-open" aria-hidden="true"></span>
-                  <span>
-                    <strong>Шаг 1 · Скачать шаблон</strong>
-                    <small>файл .xlsx с примерами и валидацией</small>
-                  </span>
-                </a>
-
-                <ol class="sheet-steps">
-                  <li><strong>Шаг 2.</strong> Загрузите файл на <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Диск</a> → откройте через «Google Таблицы».</li>
-                  <li><strong>Шаг 3.</strong> В таблице: <em>Файл → Опубликовать в интернете → CSV → Опубликовать</em>. Скопируйте ссылку.</li>
-                  <li><strong>Шаг 4.</strong> Вставьте ссылку ниже и нажмите «Применить».</li>
-                  <li><strong>Шаг 5.</strong> Через кнопку «Поделиться» в таблице — дайте редактирование коллегам.</li>
-                </ol>
-
-                <label class="mini-field">
-                  <span>Ссылка на опубликованный CSV</span>
-                  <input id="sheet-url-input" type="url" autocomplete="off" placeholder="https://docs.google.com/.../pub?output=csv">
-                </label>
-                <div class="profile-actions">
-                  <button class="mini-btn primary" type="button" id="sheet-save">Применить</button>
-                  <button class="mini-btn" type="button" id="sheet-clear">Сбросить</button>
-                </div>
                 <div class="sheet-status" id="sheet-status" aria-live="polite"></div>
-                <a class="sheet-template" id="sheet-template-link" href="#" target="_blank" rel="noreferrer">Полная инструкция</a>
+
+                <details class="sheet-admin">
+                  <summary>Я админ — хочу подключить таблицу</summary>
+                  <p class="sheet-hint">Эти три шага делаются один раз. После этого <strong>все</strong> ученики и преподаватели автоматически увидят расписание из таблицы.</p>
+
+                  <a class="sheet-download" href="schedule-template.xlsx" download>
+                    <span class="icon" data-icon="book-open" aria-hidden="true"></span>
+                    <span>
+                      <strong>1 · Скачать шаблон таблицы</strong>
+                      <small>.xlsx со всеми колонками и группами</small>
+                    </span>
+                  </a>
+
+                  <a class="sheet-download secondary" href="https://drive.google.com" target="_blank" rel="noreferrer">
+                    <span class="icon" data-icon="external-link" aria-hidden="true"></span>
+                    <span>
+                      <strong>2 · Загрузить на Google Диск</strong>
+                      <small>откройте файл через «Google Таблицы», заполните, нажмите «Поделиться» → «Все, у кого есть ссылка: Просмотр»</small>
+                    </span>
+                  </a>
+
+                  <a class="sheet-download secondary" href="https://github.com/MPEworld/Ipek-/edit/main/config.js" target="_blank" rel="noreferrer">
+                    <span class="icon" data-icon="settings" aria-hidden="true"></span>
+                    <span>
+                      <strong>3 · Вставить ссылку в config.js</strong>
+                      <small>откроется редактор GitHub — поле <code>sheetUrl</code>, затем «Commit changes»</small>
+                    </span>
+                  </a>
+
+                  <p class="sheet-hint">Можно проверить таблицу до публикации — вставьте URL ниже, он сохранится только в вашем браузере.</p>
+                  <label class="mini-field">
+                    <span>Личная ссылка (необязательно)</span>
+                    <input id="sheet-url-input" type="url" autocomplete="off" placeholder="https://docs.google.com/spreadsheets/d/.../edit">
+                  </label>
+                  <div class="profile-actions">
+                    <button class="mini-btn primary" type="button" id="sheet-save">Применить</button>
+                    <button class="mini-btn" type="button" id="sheet-clear">Сбросить</button>
+                  </div>
+
+                  <a class="sheet-template" id="sheet-template-link" href="#" target="_blank" rel="noreferrer">Подробная инструкция</a>
+                </details>
               </div>
             </div>
           </div>
@@ -681,7 +696,8 @@
       </footer>
     </div>
 
-    <script src="data.js?v=16"></script>
-    <script src="app.js?v=16"></script>
+    <script src="config.js?v=17"></script>
+    <script src="data.js?v=17"></script>
+    <script src="app.js?v=17"></script>
   </body>
 </html>

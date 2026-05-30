@@ -4185,15 +4185,101 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
 
 .sheet-download strong {
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
 }
 
 .sheet-download small {
   display: block;
-  margin-top: 2px;
-  color: rgba(255, 255, 255, 0.78);
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.74rem;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.sheet-download.secondary {
+  background: var(--button-bg);
+  color: var(--ink);
+  border-color: rgba(30, 79, 154, 0.22);
+}
+
+.sheet-download.secondary .icon {
+  color: var(--blue);
+}
+
+.sheet-download.secondary small {
+  color: var(--muted);
+}
+
+[data-mode="dark"] .sheet-download.secondary,
+body[data-theme="graphite"] .sheet-download.secondary {
+  border-color: rgba(238, 238, 230, 0.14);
+}
+
+.sheet-download.secondary code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(30, 79, 154, 0.12);
+  color: var(--blue);
+}
+
+.sheet-admin {
+  margin-top: 12px;
+  border: 1px solid rgba(116, 132, 154, 0.18);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  overflow: hidden;
+}
+
+.sheet-admin > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 750;
+  font-size: 0.86rem;
+  color: var(--ink);
+  list-style: none;
+  user-select: none;
+  transition: background 200ms var(--ease-out);
+}
+
+.sheet-admin > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sheet-admin > summary::before {
+  content: "▸";
+  color: var(--blue);
+  font-size: 0.9rem;
+  transition: transform 200ms var(--ease-out);
+}
+
+.sheet-admin[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.sheet-admin > summary:hover,
+.sheet-admin > summary:focus-visible {
+  background: rgba(30, 79, 154, 0.08);
+  outline: none;
+}
+
+.sheet-admin > :not(summary) {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+.sheet-admin > .sheet-hint:first-of-type {
+  margin-top: 4px;
+}
+
+.sheet-admin > .sheet-template {
+  margin: 8px 12px 12px;
 }
 
 .sheet-steps {

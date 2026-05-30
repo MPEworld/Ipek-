@@ -287,9 +287,13 @@ let renderFrame = 0;
 let teacherDirectoryCache = null;
 let searchDebounceTimer = 0;
 let sheetEntries = [];
-let sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
-const savedSheetUrl = readStorage("ipek-sheet-url") || "";
-state.sheetUrl = savedSheetUrl;
+let sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "", source: "none" };
+const CONFIG = (typeof window !== "undefined" && window.IPEK_CONFIG) || {};
+const personalSheetUrl = readStorage("ipek-sheet-url") || "";
+const sharedSheetUrl = (CONFIG.sheetUrl || "").trim();
+state.sheetUrl = personalSheetUrl || sharedSheetUrl;
+state.sheetSource = personalSheetUrl ? "personal" : (sharedSheetUrl ? "shared" : "none");
+const SHEET_REFRESH_MS = Math.max(1, Number(CONFIG.sheetRefreshMinutes) || 5) * 60 * 1000;
 
 bootstrap();
 
@@ -335,7 +339,7 @@ function bootstrap() {
   }, 30000);
 
   loadSheetOverlay();
-  setInterval(loadSheetOverlay, 5 * 60 * 1000);
+  setInterval(loadSheetOverlay, SHEET_REFRESH_MS);
 }
 
 function bindEvents() {
@@ -505,19 +509,26 @@ function bindEvents() {
 
   sheetSave?.addEventListener("click", () => {
     const url = (sheetInput?.value || "").trim();
-    state.sheetUrl = url;
-    writeStorage("ipek-sheet-url", url);
+    if (url) {
+      writeStorage("ipek-sheet-url", url);
+      state.sheetUrl = url;
+      state.sheetSource = "personal";
+    } else {
+      removeStorage("ipek-sheet-url");
+      state.sheetUrl = sharedSheetUrl;
+      state.sheetSource = sharedSheetUrl ? "shared" : "none";
+    }
     loadSheetOverlay(true);
   });
 
   sheetClear?.addEventListener("click", () => {
-    state.sheetUrl = "";
-    if (sheetInput) sheetInput.value = "";
     removeStorage("ipek-sheet-url");
+    if (sheetInput) sheetInput.value = "";
+    state.sheetUrl = sharedSheetUrl;
+    state.sheetSource = sharedSheetUrl ? "shared" : "none";
     sheetEntries = [];
-    sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
-    renderSheetStatus();
-    transitionRender();
+    sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "", source: "none" };
+    loadSheetOverlay(true);
   });
 }
 
@@ -2030,7 +2041,7 @@ async function loadSheetOverlay(force = false) {
   if (!state.sheetUrl) {
     if (sheetEntries.length) {
       sheetEntries = [];
-      sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "" };
+      sheetMeta = { url: "", fetchedAt: 0, count: 0, error: "", source: "none" };
       applySheetOverlay();
       transitionRender();
     }
@@ -2048,12 +2059,12 @@ async function loadSheetOverlay(force = false) {
     const text = await response.text();
     const parsed = parseSheetCsv(text);
     sheetEntries = parsed;
-    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: parsed.length, error: "" };
+    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: parsed.length, error: "", source: state.sheetSource };
     applySheetOverlay();
     transitionRender();
     renderSheetStatus();
   } catch (error) {
-    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: 0, error: error.message || "ошибка загрузки" };
+    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: 0, error: error.message || "ошибка загрузки", source: state.sheetSource };
     renderSheetStatus();
   }
 }
@@ -2297,16 +2308,20 @@ function renderSheetStatus() {
 
   if (!state.sheetUrl) {
     if (status) {
-      status.textContent = "Источник: pilot-ipek.ru";
+      status.textContent = "Расписание берётся с pilot-ipek.ru. Чтобы подключить свою таблицу — раскройте «Я админ» ниже.";
       status.dataset.kind = "neutral";
     }
     if (banner) banner.hidden = true;
     return;
   }
 
+  const sourceLabel = state.sheetSource === "personal"
+    ? "Личная таблица (только в этом браузере)"
+    : "Общая таблица колледжа";
+
   if (sheetMeta.error) {
     if (status) {
-      status.textContent = `Ошибка: ${sheetMeta.error}`;
+      status.textContent = `${sourceLabel} · ошибка: ${sheetMeta.error}. Проверьте, что доступ открыт «Все, у кого есть ссылка: Просмотр».`;
       status.dataset.kind = "error";
     }
     if (banner && bannerText) {
@@ -2318,7 +2333,7 @@ function renderSheetStatus() {
 
   if (!sheetMeta.fetchedAt) {
     if (status) {
-      status.textContent = "Загружаю таблицу…";
+      status.textContent = `${sourceLabel} · загружаю…`;
       status.dataset.kind = "loading";
     }
     if (banner && bannerText) {
@@ -2332,11 +2347,11 @@ function renderSheetStatus() {
   const ago = minutes === 0 ? "только что" : `${minutes} мин назад`;
 
   if (status) {
-    status.textContent = `Загружено ${sheetMeta.count} строк · обновлено ${ago}`;
+    status.textContent = `${sourceLabel} · ${sheetMeta.count} строк · обновлено ${ago}`;
     status.dataset.kind = "ok";
   }
   if (banner && bannerText) {
-    bannerText.textContent = `Данные из Google Таблицы · ${sheetMeta.count} записей · ${ago}`;
+    bannerText.textContent = `Данные из Google Таблицы · ${sheetMeta.count} записей · обновлено ${ago}`;
     banner.hidden = false;
   }
 }
