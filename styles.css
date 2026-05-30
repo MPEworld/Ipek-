@@ -4150,10 +4150,99 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
 }
 
 .sheet-hint {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.4;
+}
+
+.sheet-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(30, 79, 154, 0.32);
+  border-radius: var(--radius);
+  background: var(--active-gradient);
+  color: #fff;
+  text-decoration: none;
+  transition: transform 200ms var(--ease-spring), box-shadow 200ms var(--ease-out);
+}
+
+.sheet-download:hover,
+.sheet-download:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(30, 79, 154, 0.22);
+}
+
+.sheet-download .icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+}
+
+.sheet-download strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.sheet-download small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.74rem;
+}
+
+.sheet-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 10px 12px 10px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  list-style: decimal;
+}
+
+.sheet-steps li {
+  padding-left: 2px;
+}
+
+.sheet-steps strong {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.sheet-steps em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.sheet-steps a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+[data-mode="dark"] .sheet-steps,
+body[data-theme="graphite"] .sheet-steps {
+  border-color: rgba(238, 238, 230, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+}
+
+[data-mode="dark"] .sheet-steps em,
+body[data-theme="graphite"] .sheet-steps em {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .sheet-status {
@@ -4180,6 +4269,32 @@ body[data-theme="graphite"] .footer-column a:focus-visible {
 .sheet-status[data-kind="loading"] {
   border-color: rgba(30, 79, 154, 0.32);
   color: var(--blue);
+}
+
+.sheet-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 14px;
+  padding: 8px 12px;
+  border: 1px solid rgba(43, 138, 87, 0.36);
+  border-radius: var(--radius);
+  background: rgba(43, 138, 87, 0.12);
+  color: var(--green);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.sheet-banner .icon {
+  width: 18px;
+  height: 18px;
+}
+
+[data-mode="dark"] .sheet-banner,
+body[data-theme="graphite"] .sheet-banner {
+  border-color: rgba(146, 214, 167, 0.36);
+  background: rgba(146, 214, 167, 0.12);
+  color: #92d6a7;
 }
 
 .sheet-template {

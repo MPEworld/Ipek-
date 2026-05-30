@@ -499,7 +499,7 @@ function bindEvents() {
   if (sheetInput) sheetInput.value = state.sheetUrl;
   if (sheetTemplate) {
     sheetTemplate.href = "https://github.com/MPEworld/Ipek-/blob/main/GOOGLE_SHEETS.md";
-    sheetTemplate.textContent = "Инструкция по созданию таблицы";
+    sheetTemplate.textContent = "Полная инструкция";
   }
   renderSheetStatus();
 
@@ -2292,23 +2292,51 @@ function formatSheetLesson(entry) {
 
 function renderSheetStatus() {
   const status = document.querySelector("#sheet-status");
-  if (!status) return;
+  const banner = document.querySelector("#sheet-banner");
+  const bannerText = document.querySelector("#sheet-banner-text");
+
   if (!state.sheetUrl) {
-    status.textContent = "Источник: pilot-ipek.ru";
-    status.dataset.kind = "neutral";
+    if (status) {
+      status.textContent = "Источник: pilot-ipek.ru";
+      status.dataset.kind = "neutral";
+    }
+    if (banner) banner.hidden = true;
     return;
   }
+
   if (sheetMeta.error) {
-    status.textContent = `Ошибка: ${sheetMeta.error}`;
-    status.dataset.kind = "error";
+    if (status) {
+      status.textContent = `Ошибка: ${sheetMeta.error}`;
+      status.dataset.kind = "error";
+    }
+    if (banner && bannerText) {
+      bannerText.textContent = `Google Таблица недоступна: ${sheetMeta.error}`;
+      banner.hidden = false;
+    }
     return;
   }
+
   if (!sheetMeta.fetchedAt) {
-    status.textContent = "Загружаю таблицу…";
-    status.dataset.kind = "loading";
+    if (status) {
+      status.textContent = "Загружаю таблицу…";
+      status.dataset.kind = "loading";
+    }
+    if (banner && bannerText) {
+      bannerText.textContent = "Загружаю расписание из Google Таблицы…";
+      banner.hidden = false;
+    }
     return;
   }
+
   const minutes = Math.max(0, Math.round((Date.now() - sheetMeta.fetchedAt) / 60000));
-  status.textContent = `Загружено ${sheetMeta.count} строк · обновлено ${minutes === 0 ? "только что" : `${minutes} мин назад`}`;
-  status.dataset.kind = "ok";
+  const ago = minutes === 0 ? "только что" : `${minutes} мин назад`;
+
+  if (status) {
+    status.textContent = `Загружено ${sheetMeta.count} строк · обновлено ${ago}`;
+    status.dataset.kind = "ok";
+  }
+  if (banner && bannerText) {
+    bannerText.textContent = `Данные из Google Таблицы · ${sheetMeta.count} записей · ${ago}`;
+    banner.hidden = false;
+  }
 }

@@ -147,9 +147,25 @@
 
               <div class="settings-section sheet-section">
                 <span class="settings-label">Google Таблица с расписанием</span>
-                <p class="sheet-hint">Опубликуйте таблицу через «Файл → Опубликовать в интернете → CSV» и вставьте ссылку. Данные из таблицы перекроют расписание для тех дней, где они заполнены.</p>
+                <p class="sheet-hint">Учителя могут вести расписание в одной общей Google Таблице — изменения автоматически появляются на сайте.</p>
+
+                <a class="sheet-download" href="schedule-template.xlsx" download>
+                  <span class="icon" data-icon="book-open" aria-hidden="true"></span>
+                  <span>
+                    <strong>Шаг 1 · Скачать шаблон</strong>
+                    <small>файл .xlsx с примерами и валидацией</small>
+                  </span>
+                </a>
+
+                <ol class="sheet-steps">
+                  <li><strong>Шаг 2.</strong> Загрузите файл на <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Диск</a> → откройте через «Google Таблицы».</li>
+                  <li><strong>Шаг 3.</strong> В таблице: <em>Файл → Опубликовать в интернете → CSV → Опубликовать</em>. Скопируйте ссылку.</li>
+                  <li><strong>Шаг 4.</strong> Вставьте ссылку ниже и нажмите «Применить».</li>
+                  <li><strong>Шаг 5.</strong> Через кнопку «Поделиться» в таблице — дайте редактирование коллегам.</li>
+                </ol>
+
                 <label class="mini-field">
-                  <span>Ссылка на CSV</span>
+                  <span>Ссылка на опубликованный CSV</span>
                   <input id="sheet-url-input" type="url" autocomplete="off" placeholder="https://docs.google.com/.../pub?output=csv">
                 </label>
                 <div class="profile-actions">
@@ -157,7 +173,7 @@
                   <button class="mini-btn" type="button" id="sheet-clear">Сбросить</button>
                 </div>
                 <div class="sheet-status" id="sheet-status" aria-live="polite"></div>
-                <a class="sheet-template" id="sheet-template-link" href="#" target="_blank" rel="noreferrer">Шаблон таблицы (откроется в новой вкладке)</a>
+                <a class="sheet-template" id="sheet-template-link" href="#" target="_blank" rel="noreferrer">Полная инструкция</a>
               </div>
             </div>
           </div>
@@ -354,6 +370,11 @@
               <span class="icon" data-icon="user" aria-hidden="true"></span>
               <span>Гость · группа не выбрана</span>
             </div>
+          </div>
+
+          <div class="sheet-banner" id="sheet-banner" hidden>
+            <span class="icon" data-icon="sparkles" aria-hidden="true"></span>
+            <span id="sheet-banner-text"></span>
           </div>
 
           <div class="control-panel" role="search">
