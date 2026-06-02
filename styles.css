@@ -978,6 +978,27 @@ body[data-theme="graphite"] .forecast-row {
   border: 0;
 }
 
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 9999;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--active-gradient);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 22px rgba(30, 79, 154, 0.32);
+  transition: top 200ms var(--ease-spring);
+}
+
+.skip-link:focus {
+  top: 12px;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 main {
   padding: 24px 20px 44px;
   scroll-margin-top: 124px;
@@ -1645,6 +1666,87 @@ body[data-theme="graphite"] .tool-card::before {
   padding: 14px;
 }
 
+.date-strip-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.date-nav-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  min-height: 76px;
+  margin-top: 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background: var(--button-bg);
+  color: var(--blue);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  transition: transform 180ms var(--ease-spring), background 220ms var(--ease-out), border-color 220ms var(--ease-out);
+}
+
+.date-nav-btn:hover:not(:disabled),
+.date-nav-btn:focus-visible:not(:disabled) {
+  outline: none;
+  transform: translateY(-1px);
+  border-color: rgba(30, 79, 154, 0.32);
+}
+
+.date-nav-btn:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.date-nav-btn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+[data-mode="dark"] .date-nav-btn,
+body[data-theme="graphite"] .date-nav-btn {
+  border-color: rgba(238, 238, 230, 0.16);
+  background: rgba(18, 19, 22, 0.68);
+  color: #eeeeea;
+}
+
+.date-today-btn {
+  position: absolute;
+  bottom: -12px;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(30, 79, 154, 0.32);
+  border-radius: 999px;
+  background: var(--active-gradient);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(30, 79, 154, 0.22);
+  transition: transform 180ms var(--ease-spring), box-shadow 220ms var(--ease-out);
+  animation: liquid-pop 320ms var(--ease-spring);
+  z-index: 4;
+}
+
+.date-today-btn:hover,
+.date-today-btn:focus-visible {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px rgba(30, 79, 154, 0.28);
+}
+
+.date-today-btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
 .date-strip {
   position: relative;
   z-index: 3;
@@ -1653,14 +1755,22 @@ body[data-theme="graphite"] .tool-card::before {
   grid-auto-columns: max-content;
   gap: 8px;
   padding: 12px 4px 16px;
-  margin: -12px -4px 0;
+  margin: 0;
   overflow-x: auto;
   scroll-padding-inline: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .date-btn,
 .segmented-btn,
 .filter-chip,
+.panel-head-actions {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .ghost-btn,
 .bells-tab {
   position: relative;
@@ -1958,6 +2068,35 @@ input {
   color: var(--muted);
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.suggestion-hotkeys {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(116, 132, 154, 0.18);
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.suggestion-hotkeys kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  margin: 0 2px;
+  border: 1px solid rgba(116, 132, 154, 0.32);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+[data-mode="dark"] .suggestion-hotkeys kbd,
+body[data-theme="graphite"] .suggestion-hotkeys kbd {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(238, 238, 230, 0.16);
 }
 
 [data-mode="dark"] .suggestion-panel,

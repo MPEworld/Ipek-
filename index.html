@@ -12,12 +12,15 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src https://yandex.ru; connect-src 'self' https://docs.google.com https://*.googleusercontent.com;">
     <title>ИПЭК — удобное расписание</title>
     <link rel="icon" type="image/png" href="assets/ipek-logo.png">
+    <link rel="apple-touch-icon" href="assets/ipek-logo.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <link rel="preload" href="assets/ipek-logo.png" as="image">
     <link rel="preload" href="assets/college-photo-1.jpg" as="image">
     <link rel="preload" href="assets/college-photo-2.jpg" as="image">
     <link rel="stylesheet" href="styles.css?v=16">
   </head>
   <body>
+    <a class="skip-link" href="#schedule">Перейти к расписанию</a>
     <div class="app-shell">
       <header class="site-header">
         <div class="header-left">
@@ -393,7 +396,19 @@
           </div>
 
           <div class="control-panel" role="search">
-            <div class="date-strip" id="date-strip" aria-label="Выбор даты"></div>
+            <div class="date-strip-wrap">
+              <button class="date-nav-btn" type="button" id="date-prev" aria-label="Предыдущий день">
+                <span class="icon" data-icon="chevron-left" aria-hidden="true"></span>
+              </button>
+              <div class="date-strip" id="date-strip" aria-label="Выбор даты"></div>
+              <button class="date-nav-btn" type="button" id="date-next" aria-label="Следующий день">
+                <span class="icon" data-icon="chevron-right" aria-hidden="true"></span>
+              </button>
+              <button class="date-today-btn" type="button" id="date-today" hidden>
+                <span class="icon" data-icon="calendar-days" aria-hidden="true"></span>
+                <span>Сегодня</span>
+              </button>
+            </div>
 
             <div class="control-grid">
               <label class="field search-field">
@@ -451,10 +466,16 @@
                   <p class="panel-kicker" id="active-day-label"></p>
                   <h2 id="active-title">Расписание</h2>
                 </div>
-                <button class="ghost-btn" type="button" id="save-group-btn">
-                  <span class="icon" data-icon="star" aria-hidden="true"></span>
-                  <span>Моя группа</span>
-                </button>
+                <div class="panel-head-actions">
+                  <button class="ghost-btn" type="button" id="save-group-btn">
+                    <span class="icon" data-icon="star" aria-hidden="true"></span>
+                    <span>Моя группа</span>
+                  </button>
+                  <button class="ghost-btn" type="button" id="export-ics-btn" title="Скачать расписание в календарь (.ics)">
+                    <span class="icon" data-icon="calendar-plus" aria-hidden="true"></span>
+                    <span>Календарь</span>
+                  </button>
+                </div>
               </div>
 
               <div id="cards-view" class="lesson-list"></div>
@@ -696,8 +717,15 @@
       </footer>
     </div>
 
-    <script src="config.js?v=17"></script>
-    <script src="data.js?v=17"></script>
-    <script src="app.js?v=17"></script>
+    <script src="config.js?v=18"></script>
+    <script src="data.js?v=18"></script>
+    <script src="app.js?v=18"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("sw.js").catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

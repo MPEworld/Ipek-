@@ -88,7 +88,7 @@ async function main() {
 
   days.sort((a, b) => a.id.localeCompare(b.id));
   const target = path.resolve(process.cwd(), outFile);
-  fs.writeFileSync(target, `window.IPEK_RAW_DAYS = ${JSON.stringify(days, null, 2)};\n`);
+  fs.writeFileSync(target, `window.IPEK_RAW_DAYS=${JSON.stringify(days)};\n`);
   console.log(`Готово: ${days.length} дней записано в ${target}`);
 }
 

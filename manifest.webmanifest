@@ -1,0 +1,37 @@
+{
+  "name": "ИПЭК — расписание",
+  "short_name": "ИПЭК",
+  "description": "Расписание, звонки, преподаватели и сервисы Ижевского промышленно-экономического колледжа.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#1e4f9a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/ipek-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/ipek-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Сегодня",
+      "url": "./#schedule",
+      "description": "Открыть расписание на сегодня"
+    },
+    {
+      "name": "Преподаватели",
+      "url": "./#teachers"
+    }
+  ]
+}

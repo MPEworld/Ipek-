@@ -28,7 +28,12 @@ const ICONS = {
   star: '<path d="M11.5 2.9a.55.55 0 0 1 1 0l2.1 4.25 4.7.68a.55.55 0 0 1 .3.94l-3.4 3.32.8 4.68a.55.55 0 0 1-.8.58L12 15.12l-4.2 2.23a.55.55 0 0 1-.8-.58l.8-4.68-3.4-3.32a.55.55 0 0 1 .3-.94l4.7-.68z"/>',
   "table-2": '<path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0-12h12M3 9h18M3 9v10a2 2 0 0 0 2 2h4m12-12v10a2 2 0 0 1-2 2H9"/>',
   user: '<path d="M19 21a7 7 0 0 0-14 0"/><circle cx="12" cy="7" r="4"/>',
-  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
+  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  "chevron-left": '<path d="m15 18-6-6 6-6"/>',
+  "chevron-right": '<path d="m9 18 6-6-6-6"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+  share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',
+  "calendar-plus": '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M12 14v6"/><path d="M9 17h6"/>'
 };
 
 const BELLS = {
@@ -495,6 +500,26 @@ function bindEvents() {
     renderStudentPill();
   });
 
+  document.querySelector("#date-prev")?.addEventListener("click", () => shiftDay(-1));
+  document.querySelector("#date-next")?.addEventListener("click", () => shiftDay(1));
+  document.querySelector("#date-today")?.addEventListener("click", () => goToToday());
+  document.querySelector("#export-ics-btn")?.addEventListener("click", () => exportIcs());
+
+  attachSwipeNavigation();
+
+  document.addEventListener("keydown", (event) => {
+    if (event.target.matches("input, textarea, select")) return;
+    if (event.key === "ArrowLeft" && (event.altKey || event.shiftKey)) {
+      event.preventDefault();
+      shiftDay(-1);
+    } else if (event.key === "ArrowRight" && (event.altKey || event.shiftKey)) {
+      event.preventDefault();
+      shiftDay(1);
+    } else if (event.key === "t" || event.key === "т") {
+      if (event.target === document.body) goToToday();
+    }
+  });
+
   const sheetSave = document.querySelector("#sheet-save");
   const sheetClear = document.querySelector("#sheet-clear");
   const sheetInput = document.querySelector("#sheet-url-input");
@@ -702,6 +727,86 @@ function renderDates() {
     `;
   }).join("");
 
+  scrollActiveDateIntoView();
+  updateDateNavigationButtons();
+}
+
+function scrollActiveDateIntoView() {
+  const active = els.dateStrip?.querySelector(".date-btn.is-active");
+  if (!active) return;
+  try {
+    active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  } catch (_) {}
+}
+
+function updateDateNavigationButtons() {
+  const idx = days.findIndex((day) => day.id === state.dayId);
+  const prevBtn = document.getElementById("date-prev");
+  const nextBtn = document.getElementById("date-next");
+  const todayBtn = document.getElementById("date-today");
+  if (prevBtn) prevBtn.disabled = idx <= 0;
+  if (nextBtn) nextBtn.disabled = idx < 0 || idx >= days.length - 1;
+  if (todayBtn) {
+    const hasToday = days.some((day) => day.id === todayId);
+    todayBtn.hidden = !hasToday || state.dayId === todayId;
+  }
+}
+
+function shiftDay(delta) {
+  const idx = days.findIndex((day) => day.id === state.dayId);
+  if (idx < 0) return;
+  const next = Math.min(days.length - 1, Math.max(0, idx + delta));
+  if (next === idx) return;
+  state.dayId = days[next].id;
+  if (state.group && !getActiveDay().groups.includes(state.group)) {
+    state.group = chooseDefaultGroup(getActiveDay(), getPreferredGroup());
+  }
+  setSettingsOpen(false);
+  setStatsOpen(false);
+  setSearchSuggestionsOpen(false);
+  transitionRender();
+}
+
+function goToToday() {
+  if (!days.some((day) => day.id === todayId)) return;
+  state.dayId = todayId;
+  if (state.group && !getActiveDay().groups.includes(state.group)) {
+    state.group = chooseDefaultGroup(getActiveDay(), getPreferredGroup());
+  }
+  transitionRender();
+}
+
+function attachSwipeNavigation() {
+  const target = document.querySelector(".schedule-panel");
+  if (!target || !window.matchMedia("(max-width: 720px)").matches) {
+    window.addEventListener("resize", attachSwipeNavigation, { once: true });
+    return;
+  }
+
+  let startX = 0;
+  let startY = 0;
+  let active = false;
+  let pointerId = null;
+
+  target.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "touch") return;
+    if (event.target.closest("button, a, input, select, textarea, [role='button']")) return;
+    startX = event.clientX;
+    startY = event.clientY;
+    active = true;
+    pointerId = event.pointerId;
+  });
+
+  target.addEventListener("pointerup", (event) => {
+    if (!active || event.pointerId !== pointerId) return;
+    active = false;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > 50) return;
+    shiftDay(dx < 0 ? 1 : -1);
+  });
+
+  target.addEventListener("pointercancel", () => { active = false; });
 }
 
 function renderGroupOptions() {
@@ -810,16 +915,64 @@ function renderSearchSuggestions() {
     `;
   }).filter(Boolean);
 
+  const globalMatches = query ? findGlobalMatches(query) : [];
+  if (globalMatches.length) {
+    blocks.push(`
+      <div class="suggestion-group">
+        <span>Найдено в других днях</span>
+        <div>
+          ${globalMatches.map((match) => `
+            <button type="button" data-suggestion-type="day" data-suggestion-value="${escapeAttribute(match.dayId)}" data-suggestion-query="${escapeAttribute(query)}">
+              <span class="icon" data-icon="calendar-days" aria-hidden="true"></span>
+              <span>${escapeHTML(match.label)} · ${escapeHTML(match.preview)}</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `);
+  }
+
   if (!blocks.length) {
     els.suggestions.innerHTML = `
       <div class="suggestion-empty">Подсказок нет. Попробуйте часть фамилии, кабинет или номер группы.</div>
     `;
   } else {
+    blocks.push(`
+      <div class="suggestion-hotkeys">
+        Горячие клавиши: <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> · <kbd>T</kbd> — к сегодня · <kbd>Esc</kbd> — закрыть
+      </div>
+    `);
     els.suggestions.innerHTML = blocks.join("");
   }
 
   setSearchSuggestionsOpen(true);
   renderIcons();
+}
+
+function findGlobalMatches(query) {
+  if (!query || query.length < 2) return [];
+  const matches = new Map();
+  const activeDayId = state.dayId;
+
+  for (const day of days) {
+    if (day.id === activeDayId) continue;
+    for (const entry of day.entries) {
+      if (entry.isEmpty) continue;
+      if (state.group && entry.group !== state.group) continue;
+      if (!entry.search.includes(query)) continue;
+      if (matches.has(day.id)) continue;
+
+      const previewParts = [entry.parsed.subject, entry.parsed.teacher, entry.group].filter(Boolean);
+      matches.set(day.id, {
+        dayId: day.id,
+        label: day.label,
+        preview: previewParts.slice(0, 2).join(" · ").slice(0, 48)
+      });
+      if (matches.size >= 8) break;
+    }
+    if (matches.size >= 8) break;
+  }
+  return Array.from(matches.values());
 }
 
 function suggestionButton(type, value) {
@@ -841,6 +994,14 @@ function applySearchSuggestion(button) {
     state.group = value;
     state.query = "";
     els.search.value = "";
+  } else if (type === "day") {
+    state.dayId = value;
+    const keepQuery = button.dataset.suggestionQuery || state.query;
+    state.query = keepQuery;
+    els.search.value = keepQuery;
+    if (state.group && !getActiveDay().groups.includes(state.group)) {
+      state.group = chooseDefaultGroup(getActiveDay(), getPreferredGroup());
+    }
   } else {
     state.query = value;
     els.search.value = value;
@@ -2033,6 +2194,107 @@ function escapeHTML(value) {
     .replace(/'/g, "&#39;");
 }
 
+function exportIcs() {
+  const scope = state.group ? state.group : null;
+  if (!scope) {
+    alert("Выберите группу для экспорта расписания в календарь.");
+    return;
+  }
+
+  const lessons = [];
+  for (const day of days) {
+    for (const entry of day.entries) {
+      if (entry.isEmpty || entry.group !== scope) continue;
+      if (!entry.slot.start || !entry.slot.end) continue;
+      lessons.push({ day, entry });
+    }
+  }
+
+  if (!lessons.length) {
+    alert(`Не нашлось пар для группы ${scope}.`);
+    return;
+  }
+
+  const ics = buildIcs(lessons, scope);
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `IPEK-${scope}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function buildIcs(lessons, scope) {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//ИПЭК//Schedule//RU",
+    "CALSCALE:GREGORIAN",
+    `X-WR-CALNAME:ИПЭК · ${scope}`,
+    "X-WR-TIMEZONE:Europe/Samara"
+  ];
+
+  const stamp = formatIcsDateTime(new Date(), true);
+  for (const { day, entry } of lessons) {
+    const start = formatIcsDateTime(joinDateTime(day.id, entry.slot.start));
+    const end = formatIcsDateTime(joinDateTime(day.id, entry.slot.end));
+    if (!start || !end) continue;
+    const uid = `${day.id}-${entry.slot.order}-${scope}@ipek`;
+    const summary = entry.parsed.subject || "Занятие";
+    const descParts = [
+      entry.parsed.teacher && `Преподаватель: ${entry.parsed.teacher}`,
+      entry.parsed.note && `Заметка: ${entry.parsed.note}`,
+      entry.flags.online && "Дистанционно",
+      entry.flags.practice && "Практика",
+      entry.flags.exam && "Экзамен/зачёт"
+    ].filter(Boolean);
+
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${uid}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART:${start}`,
+      `DTEND:${end}`,
+      `SUMMARY:${icsEscape(summary)}`,
+      entry.parsed.room ? `LOCATION:${icsEscape(formatRoom(entry.parsed.room) || entry.parsed.room)}` : "",
+      descParts.length ? `DESCRIPTION:${icsEscape(descParts.join("\n"))}` : "",
+      "END:VEVENT"
+    );
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.filter(Boolean).join("\r\n");
+}
+
+function joinDateTime(dayId, hhmm) {
+  if (!dayId || !hhmm) return null;
+  const date = new Date(`${dayId}T${hhmm.padStart(5, "0")}:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatIcsDateTime(date, asStamp = false) {
+  if (!date) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  const y = date.getFullYear();
+  const mo = pad(date.getMonth() + 1);
+  const d = pad(date.getDate());
+  const h = pad(date.getHours());
+  const mi = pad(date.getMinutes());
+  const s = pad(date.getSeconds());
+  return asStamp ? `${y}${mo}${d}T${h}${mi}${s}Z` : `${y}${mo}${d}T${h}${mi}${s}`;
+}
+
+function icsEscape(value) {
+  return String(value || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
+}
+
 function escapeAttribute(value) {
   return escapeHTML(value).replace(/`/g, "&#96;");
 }
@@ -2054,7 +2316,14 @@ async function loadSheetOverlay(force = false) {
 
   try {
     const csvUrl = normalizeSheetUrl(state.sheetUrl);
-    const response = await fetch(csvUrl, { cache: "no-store" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    let response;
+    try {
+      response = await fetch(csvUrl, { cache: "no-store", signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     if (!response.ok) throw new Error(`статус ${response.status}`);
     const text = await response.text();
     const parsed = parseSheetCsv(text);
@@ -2064,7 +2333,8 @@ async function loadSheetOverlay(force = false) {
     transitionRender();
     renderSheetStatus();
   } catch (error) {
-    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: 0, error: error.message || "ошибка загрузки", source: state.sheetSource };
+    const friendly = error.name === "AbortError" ? "превышен таймаут (12 сек)" : (error.message || "ошибка загрузки");
+    sheetMeta = { url: state.sheetUrl, fetchedAt: Date.now(), count: 0, error: friendly, source: state.sheetSource };
     renderSheetStatus();
   }
 }
